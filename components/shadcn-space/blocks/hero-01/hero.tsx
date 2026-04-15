@@ -5,13 +5,17 @@ import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
+export type AvatarList = {
+  image: string;
+};
+
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: ["400"],
   style: ["italic"],
 });
 
-function HeroSection() {
+function HeroSection(_props: { avatarList?: AvatarList[] }) {
   return (
     <section>
       <div className="w-full h-full relative">
