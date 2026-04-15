@@ -480,7 +480,7 @@ function EtapaCard({
   const etapaDoing = !allDone && !allTodo;
 
   return (
-    <li className="bg-card p-5 first:pt-0 last:pb-0">
+    <li className="py-6">
       <div>
         <div className="flex items-center gap-3">
           <span
