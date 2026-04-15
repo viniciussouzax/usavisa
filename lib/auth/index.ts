@@ -7,6 +7,7 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { admin } from "better-auth/plugins";
 import { magicLink } from "better-auth/plugins";
+import { sendPasswordResetEmail } from "@/lib/email/resend";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
 
@@ -47,6 +48,14 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false,
     sendEmailVerificationOnSignUp: false,
+    resetPasswordTokenExpiresIn: 3600,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail({
+        to: user.email,
+        userName: user.name,
+        resetUrl: url,
+      });
+    },
   },
   user: {
     additionalFields: {},

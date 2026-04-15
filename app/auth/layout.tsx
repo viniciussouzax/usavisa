@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { HOME_URL } from "@/app.config";
+import { resolveHomeUrl } from "@/lib/auth/home-url";
 import { AuthHeader } from "./components/auth-header";
 
 export default async function AuthLayout({
@@ -12,7 +12,7 @@ export default async function AuthLayout({
   const { user } = await getUser();
 
   if (user) {
-    redirect(HOME_URL);
+    redirect(await resolveHomeUrl(user.id, user.role));
   }
 
   return (

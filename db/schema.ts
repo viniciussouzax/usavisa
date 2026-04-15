@@ -1,4 +1,9 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+
+// ============================================================================
+// Auth (Better Auth)
+// ============================================================================
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -70,3 +75,356 @@ export const verification = sqliteTable("verification", {
 
 export type InsertVerification = typeof verification.$inferInsert;
 export type SelectVerification = typeof verification.$inferSelect;
+
+// ============================================================================
+// Domínio: Organização
+// ============================================================================
+
+export const organizacao = sqliteTable(
+  "organizacao",
+  {
+    uid: text("uid").primaryKey(),
+    id: integer("id").notNull().unique(), // sequencial humano
+    shortId: text("short_id").notNull().unique(),
+    nome: text("nome").notNull(),
+    whatsapp: text("whatsapp").notNull(),
+
+    // White label
+    logoLight: text("logo_light"),
+    logoDark: text("logo_dark"),
+    iconLight: text("icon_light"),
+    iconDark: text("icon_dark"),
+    color1: text("color_1").notNull().default("#09090b"),
+    color2: text("color_2").notNull().default("#71717a"),
+    color3: text("color_3").notNull().default("#3b82f6"),
+    fontTitle: text("font_title").notNull().default("Inter"),
+    fontBody: text("font_body").notNull().default("Inter"),
+
+    ativa: integer("ativa", { mode: "boolean" }).notNull().default(true),
+    plano: text("plano").notNull().default("free"), // "free" | "premium"
+
+    // Página pública (hotpage) — textos exibidos em /[shortId]
+    tagline: text("tagline"),
+    descricao: text("descricao"),
+    footerText: text("footer_text"),
+
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+  },
+  (t) => [uniqueIndex("idx_org_short_id").on(t.shortId)],
+);
+
+export type InsertOrganizacao = typeof organizacao.$inferInsert;
+export type SelectOrganizacao = typeof organizacao.$inferSelect;
+
+// ============================================================================
+// Links da página pública da organização (Linktree-style)
+// ============================================================================
+
+export const orgPublicLink = sqliteTable(
+  "org_public_link",
+  {
+    id: text("id").primaryKey(),
+    organizacaoUid: text("organizacao_uid")
+      .notNull()
+      .references(() => organizacao.uid, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    descricao: text("descricao"),
+    url: text("url").notNull(),
+    icon: text("icon"), // emoji curto: "📅", "💬", "📄" etc.
+    ordem: integer("ordem").notNull().default(0),
+    ativo: integer("ativo", { mode: "boolean" }).notNull().default(true),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_org_public_link_org").on(t.organizacaoUid)],
+);
+
+export type InsertOrgPublicLink = typeof orgPublicLink.$inferInsert;
+export type SelectOrgPublicLink = typeof orgPublicLink.$inferSelect;
+
+// ============================================================================
+// Membership: user ↔ organizacao (com role)
+// ============================================================================
+
+export const assessor = sqliteTable(
+  "assessor",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    organizacaoUid: text("organizacao_uid")
+      .notNull()
+      .references(() => organizacao.uid, { onDelete: "cascade" }),
+    role: text("role").notNull().default("member"), // "owner" | "admin" | "member"
+    ativo: integer("ativo", { mode: "boolean" }).notNull().default(true),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("idx_assessor_user_org").on(t.userId, t.organizacaoUid),
+    index("idx_assessor_org").on(t.organizacaoUid),
+  ],
+);
+
+export type InsertAssessor = typeof assessor.$inferInsert;
+export type SelectAssessor = typeof assessor.$inferSelect;
+
+// ============================================================================
+// Solicitação (uma família/grupo por solicitação)
+// ============================================================================
+
+export const solicitacao = sqliteTable(
+  "solicitacao",
+  {
+    uid: text("uid").primaryKey(),
+    id: integer("id").notNull(), // sequencial por org (ex: #2050)
+    organizacaoUid: text("organizacao_uid")
+      .notNull()
+      .references(() => organizacao.uid, { onDelete: "cascade" }),
+    nome: text("nome").notNull(),
+    nota: text("nota").notNull().default(""),
+    etapa: text("etapa").notNull().default("Triagem"),
+    status: text("status").notNull().default("Todo"),
+    url: text("url").notNull().default(""),
+
+    createdBy: text("created_by").references(() => user.id),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    uniqueIndex("idx_solicitacao_org_id").on(t.organizacaoUid, t.id),
+    index("idx_solicitacao_org").on(t.organizacaoUid),
+  ],
+);
+
+export type InsertSolicitacao = typeof solicitacao.$inferInsert;
+export type SelectSolicitacao = typeof solicitacao.$inferSelect;
+
+// ============================================================================
+// Solicitante (membro de uma solicitação)
+// ============================================================================
+
+export const solicitante = sqliteTable(
+  "solicitante",
+  {
+    uid: text("uid").primaryKey(),
+    solicitacaoUid: text("solicitacao_uid")
+      .notNull()
+      .references(() => solicitacao.uid, { onDelete: "cascade" }),
+    ordem: integer("ordem").notNull(),
+    nome: text("nome").notNull(),
+    parentesco: text("parentesco").notNull(), // "Titular" | "Cônjuge" | "Filho(a)" | "Outro"
+    cpf: text("cpf").notNull().default(""),
+    etapa: text("etapa").notNull().default("Triagem"),
+    status: text("status").notNull().default("Todo"),
+    // Dados preenchidos via formulário público (nome, passaporte, contato, etc)
+    dadosExtras: text("dados_extras", { mode: "json" })
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_solicitante_solicitacao").on(t.solicitacaoUid)],
+);
+
+export type InsertSolicitante = typeof solicitante.$inferInsert;
+export type SelectSolicitante = typeof solicitante.$inferSelect;
+
+// ============================================================================
+// Share Link (acesso público com token)
+// ============================================================================
+
+export const shareLink = sqliteTable(
+  "share_link",
+  {
+    token: text("token").primaryKey(),
+    solicitacaoUid: text("solicitacao_uid")
+      .notNull()
+      .references(() => solicitacao.uid, { onDelete: "cascade" }),
+    createdBy: text("created_by").references(() => user.id),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+    accessCount: integer("access_count").notNull().default(0),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_share_link_solicitacao").on(t.solicitacaoUid)],
+);
+
+export type InsertShareLink = typeof shareLink.$inferInsert;
+export type SelectShareLink = typeof shareLink.$inferSelect;
+
+// ============================================================================
+// Solicitante Share Link — token individual por solicitante (form isolado)
+// ============================================================================
+
+export const solicitanteShareLink = sqliteTable(
+  "solicitante_share_link",
+  {
+    token: text("token").primaryKey(),
+    solicitanteUid: text("solicitante_uid")
+      .notNull()
+      .references(() => solicitante.uid, { onDelete: "cascade" }),
+    createdBy: text("created_by").references(() => user.id),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+    accessCount: integer("access_count").notNull().default(0),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_solicitante_share_link_solicitante").on(t.solicitanteUid),
+  ],
+);
+
+export type InsertSolicitanteShareLink =
+  typeof solicitanteShareLink.$inferInsert;
+export type SelectSolicitanteShareLink =
+  typeof solicitanteShareLink.$inferSelect;
+
+// ============================================================================
+// Form Data (DS-160 engine) — estado persistido do formulário por solicitante
+// ============================================================================
+
+export const formData = sqliteTable(
+  "form_data",
+  {
+    solicitanteUid: text("solicitante_uid")
+      .primaryKey()
+      .references(() => solicitante.uid, { onDelete: "cascade" }),
+    // { [secId.fieldId]: string | { day, month, year } | { p1, p2, p3 } }
+    data: text("data", { mode: "json" })
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    // { [secId.arrayId]: Array<Record<string, unknown>> }
+    arrayData: text("array_data", { mode: "json" })
+      .$type<Record<string, unknown[]>>()
+      .notNull()
+      .default({}),
+    visitedSections: text("visited_sections", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    naFields: text("na_fields", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    unknownFields: text("unknown_fields", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+);
+
+export type InsertFormData = typeof formData.$inferInsert;
+export type SelectFormData = typeof formData.$inferSelect;
+
+export const formLog = sqliteTable(
+  "form_log",
+  {
+    id: text("id").primaryKey(),
+    solicitanteUid: text("solicitante_uid")
+      .notNull()
+      .references(() => solicitante.uid, { onDelete: "cascade" }),
+    // "section_complete" | "finalize" | "validation_error" | custom
+    event: text("event").notNull(),
+    payload: text("payload", { mode: "json" })
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_form_log_solicitante").on(t.solicitanteUid)],
+);
+
+export type InsertFormLog = typeof formLog.$inferInsert;
+export type SelectFormLog = typeof formLog.$inferSelect;
+
+// ============================================================================
+// Integrações (configuração por org, identificador global)
+// ============================================================================
+
+export const orgIntegration = sqliteTable(
+  "org_integration",
+  {
+    id: text("id").primaryKey(),
+    organizacaoUid: text("organizacao_uid")
+      .notNull()
+      .references(() => organizacao.uid, { onDelete: "cascade" }),
+    integrationId: text("integration_id").notNull(), // "z-api", "resend", etc.
+    config: text("config", { mode: "json" })
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+    ativo: integer("ativo", { mode: "boolean" }).notNull().default(false),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("idx_org_integration_org_key").on(
+      t.organizacaoUid,
+      t.integrationId,
+    ),
+  ],
+);
+
+export type InsertOrgIntegration = typeof orgIntegration.$inferInsert;
+export type SelectOrgIntegration = typeof orgIntegration.$inferSelect;
+
+// Integrações globais (só master). Mesma tabela com organizacao_uid = NULL
+// seria problemático pelo unique index. Usamos tabela separada.
+export const globalIntegration = sqliteTable("global_integration", {
+  integrationId: text("integration_id").primaryKey(),
+  config: text("config", { mode: "json" })
+    .$type<Record<string, string>>()
+    .notNull()
+    .default({}),
+  ativo: integer("ativo", { mode: "boolean" }).notNull().default(false),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export type InsertGlobalIntegration = typeof globalIntegration.$inferInsert;
+export type SelectGlobalIntegration = typeof globalIntegration.$inferSelect;

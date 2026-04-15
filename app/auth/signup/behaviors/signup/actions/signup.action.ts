@@ -4,8 +4,8 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { authErrorHandler, throwAuthError } from "@/lib/auth/error";
-import { HOME_URL } from "@/app.config";
 import { getUser } from "@/lib/auth";
+import { resolveHomeUrl } from "@/lib/auth/home-url";
 
 export interface ActionResult {
   error: string | null;
@@ -88,5 +88,9 @@ export async function signup(
     };
   }
 
-  redirect(redirectURL || HOME_URL);
+  const { user: newUser } = await getUser();
+  const fallback = newUser
+    ? await resolveHomeUrl(newUser.id, newUser.role)
+    : "/";
+  redirect(redirectURL || fallback);
 }

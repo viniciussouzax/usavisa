@@ -4,14 +4,12 @@ import * as schema from "./schema";
 import { createClient } from "@libsql/client";
 import type { LibSQLDatabase } from "drizzle-orm/libsql";
 
-// Load environment variables based on NODE_ENV
+// Load environment variables (Next.js convention: .env base, then environment-specific)
 dotenv.config({ path: '.env', quiet: true });
-if (process.env.NODE_ENV === 'development') {
-  dotenv.config({ path: '.env.development', override: true, quiet: true });
-} else if (process.env.NODE_ENV === 'test') {
-  dotenv.config({ path: '.env.test', override: true, quiet: true });
-} else if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
   dotenv.config({ path: '.env.production', override: true, quiet: true });
+} else if (process.env.NODE_ENV !== 'test') {
+  dotenv.config({ path: '.env.local', override: true, quiet: true });
 }
 
 // Reuse DB instance to avoid too many connections in dev HMR

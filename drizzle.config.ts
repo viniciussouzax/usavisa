@@ -3,14 +3,12 @@ import { defineConfig } from 'drizzle-kit';
 
 const environment = process.env.NODE_ENV || 'development';
 
-// Load environment-specific .env file
+// Load env (Next.js convention: .env base, then environment-specific override)
 config({ path: '.env', quiet: true });
-if (environment === 'development') {
-  config({ path: '.env.development', override: true, quiet: true });
-} else if (environment === 'test') {
-  config({ path: '.env.test', override: true, quiet: true });
-} else if (environment === 'production') {
+if (environment === 'production') {
   config({ path: '.env.production', override: true, quiet: true });
+} else if (environment !== 'test') {
+  config({ path: '.env.local', override: true, quiet: true });
 }
 
 // Use DATABASE_URL from the loaded environment file

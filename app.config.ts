@@ -1,5 +1,9 @@
-export const HOME_URL = "/home";
-export const SIGNIN_URL = "/auth/signin";
+/**
+ * Fallback usado quando o usuário não tem papel/org resolvíveis.
+ * Lógica real está em `lib/auth/home-url.ts` (resolveHomeUrl).
+ */
+export const HOME_URL = "/";
+export const SIGNIN_URL = "/signin";
 export const SIGNUP_URL = "/auth/signup";
 
 export const APP_NAME = "Your App";

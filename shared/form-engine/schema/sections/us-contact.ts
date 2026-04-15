@@ -1,0 +1,107 @@
+import type { FormSection } from "../primitives";
+
+export const usContactSection: FormSection = {
+  id: "usContact",
+  label: "Contato nos EUA",
+  fields: [
+    {
+      id: "_contactIntro",
+      type: "orientation",
+      text:
+        "Informe uma pessoa que te conheça nos EUA ou uma empresa/organização a visitar. Se não souber, use a embaixada ou consulado dos EUA no país de origem.",
+    },
+    {
+      id: "contactType",
+      type: "radio",
+      label: "Tipo de contato",
+      required: true,
+      options: [
+        { value: "P", label: "Pessoa" },
+        { value: "O", label: "Organização" },
+      ],
+    },
+    {
+      id: "surname",
+      type: "text",
+      label: "Sobrenome",
+      required: true,
+      maxLen: 33,
+      noSpecial: true,
+      showWhen: { field: "contactType", equals: "P" },
+    },
+    {
+      id: "givenName",
+      type: "text",
+      label: "Nome",
+      required: true,
+      maxLen: 33,
+      noSpecial: true,
+      showWhen: { field: "contactType", equals: "P" },
+    },
+    {
+      id: "organization",
+      type: "text",
+      label: "Nome da Organização",
+      required: true,
+      maxLen: 33,
+      showWhen: { field: "contactType", equals: "O" },
+    },
+    {
+      id: "relationship",
+      type: "select",
+      label: "Relação com você",
+      required: true,
+      optionsRef: "usContactRelationships",
+    },
+    {
+      id: "usContactStreet1",
+      type: "text",
+      label: "Endereço nos EUA — Linha 1",
+      required: true,
+      maxLen: 40,
+    },
+    {
+      id: "usContactStreet2",
+      type: "text",
+      label: "Endereço nos EUA — Linha 2",
+      maxLen: 40,
+    },
+    {
+      id: "usContactCity",
+      type: "text",
+      label: "Cidade",
+      required: true,
+      maxLen: 20,
+    },
+    {
+      id: "usContactState",
+      type: "select",
+      label: "Estado",
+      required: true,
+      optionsRef: "usStates",
+    },
+    {
+      id: "usContactZip",
+      type: "text",
+      label: "CEP (ZIP Code)",
+      required: true,
+      maxLen: 10,
+    },
+    {
+      id: "usContactPhone",
+      type: "phone",
+      label: "Telefone",
+      required: true,
+      phoneCountry: "us",
+      phoneLocked: true,
+    },
+    {
+      id: "usContactEmail",
+      type: "email",
+      label: "Email",
+      required: true,
+      maxLen: 50,
+      allowNA: true,
+    },
+  ],
+};

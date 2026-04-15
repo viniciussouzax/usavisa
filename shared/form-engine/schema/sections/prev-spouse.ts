@@ -1,0 +1,101 @@
+import type { FormSection } from "../primitives";
+
+export const prevSpouseSection: FormSection = {
+  id: "prevSpouse",
+  label: "Ex-Cônjuge",
+  showWhen: {
+    section: "personal1",
+    field: "maritalStatus",
+    equals: "D",
+  },
+  fields: [
+    {
+      id: "numberOfPrevious",
+      type: "text",
+      label: "Número de ex-cônjuges",
+      required: true,
+      maxLen: 2,
+    },
+    {
+      id: "spouses",
+      type: "array",
+      label: "Ex-cônjuges",
+      maxItems: 5,
+      fields: [
+        {
+          id: "surname",
+          type: "text",
+          label: "Sobrenome",
+          required: true,
+          maxLen: 33,
+          noSpecial: true,
+        },
+        {
+          id: "givenName",
+          type: "text",
+          label: "Nome",
+          required: true,
+          maxLen: 33,
+          noSpecial: true,
+        },
+        {
+          id: "dob",
+          type: "date",
+          label: "Data de Nascimento",
+          required: true,
+          notFuture: true,
+        },
+        {
+          id: "nationality",
+          type: "select",
+          label: "Nacionalidade",
+          required: true,
+          optionsRef: "countries",
+        },
+        {
+          id: "pobCity",
+          type: "text",
+          label: "Cidade de Nascimento",
+          required: true,
+          maxLen: 20,
+          allowUnknown: true,
+        },
+        {
+          id: "pobCountry",
+          type: "select",
+          label: "País de Nascimento",
+          required: true,
+          optionsRef: "countries",
+        },
+        {
+          id: "dateOfMarriage",
+          type: "date",
+          label: "Data do Casamento",
+          required: true,
+          notFuture: true,
+        },
+        {
+          id: "dateMarriageEnded",
+          type: "date",
+          label: "Data do Término",
+          required: true,
+          notFuture: true,
+        },
+        {
+          id: "howEnded",
+          type: "textarea",
+          label: "Como terminou o casamento",
+          required: true,
+          maxLen: 4000,
+        },
+        {
+          id: "countryTerminated",
+          type: "select",
+          label: "País onde foi dissolvido",
+          required: true,
+          optionsRef: "countries",
+        },
+      ],
+    },
+  ],
+};
