@@ -9,11 +9,11 @@ export default async function LandingPageLayout({
   const { user, isImpersonating } = await getUser();
 
   return (
-    <>
+    <div className="dark bg-background text-foreground">
       {isImpersonating && user && (
         <ImpersonationBanner impersonatedUserName={user.name || user.email} />
       )}
       {children}
-    </>
+    </div>
   );
 }

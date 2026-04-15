@@ -49,7 +49,7 @@ export function AppSidebar({ userRole, currentOrg }: AppSidebarProps) {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
+      <SidebarHeader>
         <Link href={homeHref} className="flex items-center gap-2 px-2 py-1.5">
           {currentOrg ? (
             <OrganizacaoLogo organizacao={currentOrg} size="sm" />

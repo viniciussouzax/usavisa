@@ -15,7 +15,7 @@ type Props = {
  */
 export function LandingNav({ contratarUrl }: Props) {
   return (
-    <header className="border-b border-border/60 bg-background">
+    <header className="bg-background">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center">
           <Image
