@@ -63,6 +63,8 @@ export async function resolveSolicitanteShareToken(
       cpf: row.sol.cpf,
       etapa: row.sol.etapa as Solicitante["etapa"],
       status: row.sol.status as Solicitante["status"],
+      subEtapa: row.sol.subEtapa,
+      tarefaAtual: row.sol.tarefaAtual,
     },
     solicitacao: {
       uid: row.caso.uid,

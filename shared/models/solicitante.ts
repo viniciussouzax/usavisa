@@ -15,6 +15,8 @@ function rowToSolicitante(
     cpf: row.cpf,
     etapa: row.etapa as Etapa,
     status: row.status as Status,
+    subEtapa: row.subEtapa,
+    tarefaAtual: row.tarefaAtual,
   };
 }
 
@@ -96,6 +98,8 @@ type UpdateSolicitanteInput = Partial<{
   cpf: string;
   etapa: Etapa;
   status: Status;
+  subEtapa: string | null;
+  tarefaAtual: string | null;
 }>;
 
 export async function updateSolicitante(

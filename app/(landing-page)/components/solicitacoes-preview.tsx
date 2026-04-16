@@ -13,42 +13,42 @@ type MockRow = {
 const mockRows: MockRow[] = [
   {
     id: "2050",
-    nome: "Família Silva",
-    nota: "Turismo EUA — 4 solicitantes",
+    nome: "Familia Silva",
+    nota: "Turismo EUA - 4 solicitantes",
     etapa: "Triagem",
-    status: "Doing",
+    status: "Executando",
   },
   {
     id: "2049",
     nome: "Carlos Mendes",
-    nota: "Renovação B1/B2",
-    etapa: "Formulário DS-160",
-    status: "Done",
+    nota: "Renovacao B1/B2",
+    etapa: "Analise",
+    status: "Concluido",
   },
   {
     id: "2048",
     nome: "Ana Souza",
-    nota: "Primeira solicitação F1",
-    etapa: "Agendamento CASV",
-    status: "Todo",
+    nota: "Primeira solicitacao F1",
+    etapa: "Automacao",
+    status: "Pendente",
   },
   {
     id: "2047",
     nome: "Pedro Lima",
     nota: "Negado anterior, 221(g)",
     etapa: "Entrevista",
-    status: "Done",
+    status: "Pendente",
   },
   {
     id: "2046",
-    nome: "Família Rocha",
-    nota: "Turismo — 3 titulares",
-    etapa: "Aprovado",
-    status: "Done",
+    nome: "Familia Rocha",
+    nota: "Turismo - 3 titulares",
+    etapa: "Resultado",
+    status: "Aprovado",
   },
 ];
 
-const statusPills: Status[] = ["Todo", "Doing", "Done", "Retry"];
+const statusPills: Status[] = ["Pendente", "Executando", "Concluido", "Erro"];
 
 /**
  * Preview visual da tela de Solicitações — mockup estático no hero.

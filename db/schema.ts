@@ -203,7 +203,7 @@ export const solicitacao = sqliteTable(
     nome: text("nome").notNull(),
     nota: text("nota").notNull().default(""),
     etapa: text("etapa").notNull().default("Triagem"),
-    status: text("status").notNull().default("Todo"),
+    status: text("status").notNull().default("Pendente"),
     url: text("url").notNull().default(""),
 
     createdBy: text("created_by").references(() => user.id),
@@ -240,8 +240,9 @@ export const solicitante = sqliteTable(
     parentesco: text("parentesco").notNull(), // "Principal" | "Cônjuge" | "Filho(a)" | "Outro"
     cpf: text("cpf").notNull().default(""),
     etapa: text("etapa").notNull().default("Triagem"),
-    status: text("status").notNull().default("Todo"),
-    // Dados preenchidos via formulário público (nome, passaporte, contato, etc)
+    status: text("status").notNull().default("Pendente"),
+    subEtapa: text("sub_etapa"),
+    tarefaAtual: text("tarefa_atual"),
     dadosExtras: text("dados_extras", { mode: "json" })
       .$type<Record<string, string>>()
       .notNull()
@@ -377,6 +378,36 @@ export const formLog = sqliteTable(
 
 export type InsertFormLog = typeof formLog.$inferInsert;
 export type SelectFormLog = typeof formLog.$inferSelect;
+
+// ============================================================================
+// Pipeline Log (stream unico por solicitante: form + automacao + manual)
+// ============================================================================
+
+export const pipelineLog = sqliteTable(
+  "pipeline_log",
+  {
+    id: text("id").primaryKey(),
+    solicitanteUid: text("solicitante_uid")
+      .notNull()
+      .references(() => solicitante.uid, { onDelete: "cascade" }),
+    evento: text("evento").notNull(),
+    subEtapa: text("sub_etapa"),
+    tarefa: text("tarefa"),
+    status: text("status"),
+    dados: text("dados", { mode: "json" })
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    duracaoMs: integer("duracao_ms"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_pipeline_log_solicitante").on(t.solicitanteUid)],
+);
+
+export type InsertPipelineLog = typeof pipelineLog.$inferInsert;
+export type SelectPipelineLog = typeof pipelineLog.$inferSelect;
 
 // ============================================================================
 // Integrações (configuração por org, identificador global)

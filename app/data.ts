@@ -4,23 +4,27 @@
 
 import { APIFY_STAGES, actorIdKey } from "@/shared/integrations/apify/stages";
 
-export const ETAPAS = [
-  "Triagem",
-  "Documentação",
-  "Formulário DS-160",
-  "Pagamento MRV",
-  "Agendamento CASV",
-  "Agendamento Consular",
-  "Entrevista",
-  "Aprovado",
-  "Rejeitado",
-] as const;
-export type Etapa = (typeof ETAPAS)[number];
+export {
+  ETAPAS,
+  STATUS_POR_ETAPA,
+  STATUS_HUMANO,
+  STATUS_AUTOMACAO,
+  STATUS_ENTREVISTA,
+  STATUS_RESULTADO,
+  type Etapa,
+} from "@/shared/pipeline/stages";
+import { STATUS_POR_ETAPA, type Etapa } from "@/shared/pipeline/stages";
 
-export const STATUSES = ["Todo", "Doing", "Done", "Retry"] as const;
+export const STATUSES = [
+  ...new Set(Object.values(STATUS_POR_ETAPA).flat()),
+] as const;
 export type Status = (typeof STATUSES)[number];
 
 export const ALL_ETAPAS = "Todas as etapas" as const;
+
+export function statusesForEtapa(etapa: Etapa): readonly string[] {
+  return STATUS_POR_ETAPA[etapa] ?? [];
+}
 
 export const PLANOS = ["free", "premium"] as const;
 export type Plano = (typeof PLANOS)[number];
@@ -90,6 +94,8 @@ export type Solicitante = {
   cpf: string;
   etapa: Etapa;
   status: Status;
+  subEtapa: string | null;
+  tarefaAtual: string | null;
 };
 
 // ============================================================================
@@ -112,16 +118,27 @@ export function sortSolicitantes(list: Solicitante[]): Solicitante[] {
 
 export function etapaTone(etapa: Etapa) {
   if (etapa === "Triagem") return "warning" as const;
-  if (etapa === "Aprovado") return "success" as const;
-  if (etapa === "Rejeitado") return "danger" as const;
-  return "info" as const;
+  if (etapa === "Analise") return "info" as const;
+  if (etapa === "Automacao") return "info" as const;
+  if (etapa === "Entrevista") return "warning" as const;
+  if (etapa === "Resultado") return "success" as const;
+  if (etapa === "Arquivado") return "neutral" as const;
+  return "neutral" as const;
 }
 
 export function statusTone(status: Status) {
-  if (status === "Todo") return "neutral" as const;
-  if (status === "Doing") return "info" as const;
-  if (status === "Done") return "success" as const;
-  if (status === "Retry") return "danger" as const;
+  if (status === "Pendente") return "neutral" as const;
+  if (status === "Executando") return "info" as const;
+  if (status === "Concluido") return "success" as const;
+  if (status === "Erro") return "danger" as const;
+  if (status === "Falha") return "danger" as const;
+  if (status === "Espera") return "warning" as const;
+  if (status === "Realizada") return "info" as const;
+  if (status === "Aprovado") return "success" as const;
+  if (status === "Negado") return "danger" as const;
+  if (status === "Nova Entrevista") return "info" as const;
+  if (status === "Docs Complementares") return "warning" as const;
+  if (status === "Processo Administrativo") return "warning" as const;
   return "neutral" as const;
 }
 

@@ -9,6 +9,7 @@ import { updateSolicitante } from "@/shared/models/solicitante";
 import { db } from "@/db";
 import { solicitacao, solicitante } from "@/db/schema";
 import { ETAPAS, STATUSES } from "@/app/data";
+import { appendPipelineLog } from "@/shared/models/pipeline-log";
 
 const schema = z.object({
   uid: z.string().min(1),
@@ -50,6 +51,13 @@ export async function updateSolicitanteAction(input: Input): Promise<Result> {
   }
 
   const { uid, ...rest } = parsed.data;
+  if (rest.etapa || rest.status) {
+    await appendPipelineLog({
+      solicitanteUid: uid,
+      evento: "etapa.mudou",
+      dados: { ...rest },
+    });
+  }
   await updateSolicitante(uid, rest);
   return { error: null };
 }

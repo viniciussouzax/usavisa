@@ -11,6 +11,8 @@ import { solicitacao, solicitante } from "@/db/schema";
 import { toDS160Applicant } from "@/shared/integrations/ds160/to-applicant";
 import { dispatchDs160Run } from "@/shared/integrations/ds160/dispatch";
 import { getDs160Credentials } from "@/shared/integrations/ds160/get-credentials";
+import { appendPipelineLog } from "@/shared/models/pipeline-log";
+import { updateSolicitante } from "@/shared/models/solicitante";
 
 const schema = z.object({
   solicitanteUid: z.string().min(1),
@@ -72,6 +74,20 @@ export async function dispatchDs160RunAction(
       },
       { mode: parsed.data.mode },
     );
+    await updateSolicitante(parsed.data.solicitanteUid, {
+      etapa: "Automacao",
+      status: "Executando",
+      subEtapa: "ds160",
+      tarefaAtual: "ds160.01_apply",
+    });
+    await appendPipelineLog({
+      solicitanteUid: parsed.data.solicitanteUid,
+      evento: "automacao.iniciada",
+      subEtapa: "ds160",
+      tarefa: "ds160.01_apply",
+      status: "Executando",
+      dados: { runId: result.runId, actorId: creds.apify.actorId },
+    });
     return { ok: true, error: null, runId: result.runId, consoleUrl: result.consoleUrl, status: result.status };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro ao disparar automação";

@@ -13,6 +13,7 @@ import { resolveShareToken } from "@/shared/models/share-link";
 import { resolveSolicitanteShareToken } from "@/shared/models/solicitante-share-link";
 import { db } from "@/db";
 import { solicitacao, solicitante } from "@/db/schema";
+import { appendPipelineLog } from "@/shared/models/pipeline-log";
 
 const schema = z.object({
   solicitanteUid: z.string().min(1),
@@ -83,14 +84,13 @@ export async function finalizeFormAction(input: Input): Promise<Result> {
 
   await saveFormDataForSolicitante(solicitanteUid, snapshot);
 
-  // Muda etapa do solicitante pra "Pronto para envio" e status pra "Todo".
-  // Marca formulário como concluído. O próximo passo (Pagamento MRV) fica a
-  // cargo do assessor quando ele avançar a etapa manualmente.
+  // Triagem concluida: solicitante preencheu o formulario.
+  // Etapa avanca pra Analise (assessor revisa estrategia antes de autorizar automacao).
   await db
     .update(solicitante)
     .set({
-      etapa: "Formulário DS-160",
-      status: "Done",
+      etapa: "Analise",
+      status: "Pendente",
       updatedAt: new Date(),
     })
     .where(eq(solicitante.uid, solicitanteUid));
@@ -101,6 +101,12 @@ export async function finalizeFormAction(input: Input): Promise<Result> {
     payload: {
       visitedSections: snapshot.visitedSections.length,
     },
+  });
+
+  await appendPipelineLog({
+    solicitanteUid,
+    evento: "triagem.concluido",
+    dados: { visitedSections: snapshot.visitedSections.length },
   });
 
   return { error: null };
