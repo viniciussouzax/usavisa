@@ -9,12 +9,14 @@ import { createOrganizacao } from "@/shared/models/organizacao";
 const assessorSchema = z.object({
   nome: z.string().trim().min(1),
   email: z.string().email(),
+  cpf: z.string().trim().regex(/^\d{11}$/, "CPF deve ter 11 dígitos").optional().or(z.literal("")),
   senha: z.string().min(8),
   role: z.enum(["owner", "member"]),
 });
 
 const schema = z.object({
   nome: z.string().trim().min(1).max(200),
+  cnpj: z.string().trim().regex(/^\d{14}$/, "CNPJ deve ter 14 dígitos").optional().or(z.literal("")),
   shortId: z
     .string()
     .trim()
@@ -48,6 +50,7 @@ export async function createOrganizacaoAction(input: Input): Promise<Result> {
 
   const org = await createOrganizacao({
     nome: data.nome,
+    cnpj: data.cnpj || undefined,
     shortId: data.shortId,
     whatsapp: data.whatsapp,
     plano: data.plano,
@@ -67,6 +70,7 @@ export async function createOrganizacaoAction(input: Input): Promise<Result> {
     await addAssessor({
       userId: result.user.id,
       organizacaoUid: org.uid,
+      cpf: a.cpf || undefined,
       role: a.role,
     });
   }

@@ -87,6 +87,7 @@ export const organizacao = sqliteTable(
     id: integer("id").notNull().unique(), // sequencial humano
     shortId: text("short_id").notNull().unique(),
     nome: text("nome").notNull(),
+    cnpj: text("cnpj"),
     whatsapp: text("whatsapp").notNull(),
 
     // White label
@@ -166,6 +167,7 @@ export const assessor = sqliteTable(
     organizacaoUid: text("organizacao_uid")
       .notNull()
       .references(() => organizacao.uid, { onDelete: "cascade" }),
+    cpf: text("cpf"),
     role: text("role").notNull().default("member"), // "owner" | "admin" | "member"
     ativo: integer("ativo", { mode: "boolean" }).notNull().default(true),
     createdAt: integer("created_at", { mode: "timestamp" })

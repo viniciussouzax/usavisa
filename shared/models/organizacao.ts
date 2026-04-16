@@ -96,6 +96,7 @@ async function nextOrgId(): Promise<number> {
 type CreateOrganizacaoInput = {
   shortId: string;
   nome: string;
+  cnpj?: string;
   whatsapp: string;
   plano?: Plano;
 };
@@ -110,6 +111,7 @@ export async function createOrganizacao(
     id,
     shortId: input.shortId,
     nome: input.nome,
+    cnpj: input.cnpj ?? null,
     whatsapp: input.whatsapp,
     plano: input.plano ?? "free",
   });

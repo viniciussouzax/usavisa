@@ -90,6 +90,7 @@ export async function getPrimaryOrgUidForUser(
 type AddAssessorInput = {
   userId: string;
   organizacaoUid: string;
+  cpf?: string;
   role: AssessorRole;
 };
 
@@ -98,6 +99,7 @@ export async function addAssessor(input: AddAssessorInput): Promise<void> {
     id: crypto.randomUUID(),
     userId: input.userId,
     organizacaoUid: input.organizacaoUid,
+    cpf: input.cpf ?? null,
     role: input.role,
     ativo: true,
   });

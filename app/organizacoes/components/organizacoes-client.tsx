@@ -145,6 +145,7 @@ type AssessorDraft = {
   key: string;
   nome: string;
   email: string;
+  cpf: string;
   senha: string;
   role: AssessorRole;
 };
@@ -154,6 +155,7 @@ function makeEmptyAssessor(): AssessorDraft {
     key: crypto.randomUUID(),
     nome: "",
     email: "",
+    cpf: "",
     senha: "",
     role: "member",
   };
@@ -200,12 +202,14 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
           const fd = new FormData(e.currentTarget);
           const res = await createOrganizacaoAction({
             nome: String(fd.get("nome") ?? "").trim(),
+            cnpj: String(fd.get("cnpj") ?? "").trim(),
             shortId: String(fd.get("shortId") ?? "").trim(),
             whatsapp: String(fd.get("whatsapp") ?? "").trim(),
             plano,
             assessores: assessores.map((a) => ({
               nome: a.nome,
               email: a.email,
+              cpf: a.cpf ?? "",
               senha: a.senha,
               role: a.role as "owner" | "member",
             })),
@@ -255,6 +259,19 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
             />
             <p className="text-xs text-muted-foreground">
               Formato internacional sem + ou espaços. Ex: 55 (Brasil) + 11 (DDD) + número.
+            </p>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="org-cnpj">CNPJ</Label>
+            <Input
+              id="org-cnpj"
+              name="cnpj"
+              placeholder="00000000000000"
+              pattern="[0-9]{14}"
+              maxLength={14}
+            />
+            <p className="text-xs text-muted-foreground">
+              14 dígitos, sem pontos ou traços. Opcional.
             </p>
           </div>
           <div className="grid gap-2">
@@ -349,6 +366,23 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor={`assessor-cpf-${a.key}`}>CPF</Label>
+                <Input
+                  id={`assessor-cpf-${a.key}`}
+                  value={a.cpf}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 11);
+                    updateAssessor(a.key, { cpf: val });
+                  }}
+                  placeholder="00000000000"
+                  maxLength={11}
+                />
+                <p className="text-xs text-muted-foreground">
+                  11 dígitos, sem pontos ou traços. Opcional.
+                </p>
               </div>
 
               <div className="grid gap-2">
