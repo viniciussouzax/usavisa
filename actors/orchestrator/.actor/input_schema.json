@@ -7,7 +7,8 @@
         "orchestrateUrl": {
             "title": "Orchestrate URL",
             "type": "string",
-            "description": "Full URL of the orchestrate API route including secret param"
+            "description": "Full URL of the orchestrate API route including secret param",
+            "editor": "textfield"
         }
     }
 }
