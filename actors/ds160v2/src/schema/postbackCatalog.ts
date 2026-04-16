@@ -16,9 +16,9 @@ export interface PostbackSpec {
 }
 
 export const POSTBACK_CATALOG: PostbackSpec[] = [
-    // Category 1 — dropdowns that reload sections on any change
+    // Category 1 — dropdowns that reload sections on any change. Be specific: generic
+    // "Country" over-matches ddlPayerCountry/ddlMailCountry/ddlEmpSchCountry (static).
     { match: 'includes', token: 'CNTRY', trigger: 'dropdown-any' },
-    { match: 'includes', token: 'Country', trigger: 'dropdown-any' },
     { match: 'includes', token: 'PurposeOfTrip', trigger: 'dropdown-any' },
     { match: 'includes', token: 'VisaClass', trigger: 'dropdown-any' },
     { match: 'includes', token: 'OtherPurpose', trigger: 'dropdown-any' },
@@ -30,7 +30,9 @@ export const POSTBACK_CATALOG: PostbackSpec[] = [
     { match: 'includes', token: 'MARITAL_STATUS', trigger: 'dropdown-any' },
     { match: 'includes', token: 'APP_GENDER', trigger: 'dropdown-any' },
     { match: 'includes', token: 'WhoIsPaying', trigger: 'dropdown-any' },
-    { match: 'includes', token: 'PayerRelationship', trigger: 'dropdown-any' },
+    // NOTE: PayerRelationship does NOT trigger __doPostBack (confirmed in HTML snapshot);
+    // it used to be flagged, but the catalog was over-matching it. Same story for
+    // ddlPayerCountry/ddlMailCountry/etc — handled by removing the generic "Country" entry.
     { match: 'includes', token: 'SpouseNatDropDownList', trigger: 'dropdown-any' },
     { match: 'includes', token: 'SpouseAddressType', trigger: 'dropdown-any' },
     { match: 'includes', token: 'SpousePOBCountry', trigger: 'dropdown-any' },
@@ -55,10 +57,10 @@ export const POSTBACK_CATALOG: PostbackSpec[] = [
     { match: 'includes', token: 'AddSite', trigger: 'radio-yes-only' },
     { match: 'includes', token: 'OTH_NATL', trigger: 'radio-yes-only' },
     { match: 'includes', token: 'OtherNames', trigger: 'radio-yes-only' },
-    { match: 'includes', token: 'OtherPersonsTravelingWithYou', trigger: 'radio-yes-only' },
+    // Spec/pages/07 line 10: postback fires on BOTH Y and N (select N calls __doPostBack).
+    // Previously miscatalogued as yes-only; moved to category 3.
     { match: 'includes', token: 'TelecodeQuestion', trigger: 'radio-yes-only' },
     { match: 'includes', token: 'PermResOtherCntryInd', trigger: 'radio-yes-only' },
-    { match: 'includes', token: 'GroupTravel', trigger: 'radio-yes-only' },
     { match: 'includes', token: 'LOST_PPT_IND', trigger: 'radio-yes-only' },
     { match: 'includes', token: 'OTHER_PPT_IND', trigger: 'radio-yes-only' },
     { match: 'includes', token: 'FATHER_LIVE_IN_US_IND', trigger: 'radio-yes-only' },
@@ -77,6 +79,10 @@ export const POSTBACK_CATALOG: PostbackSpec[] = [
     { match: 'includes', token: 'IMMED_RELATIVE', trigger: 'radio-any' },
     { match: 'includes', token: 'MailingAddrSame', trigger: 'radio-any' },
     { match: 'includes', token: 'MailingAddr', trigger: 'radio-any' },
+    // GroupTravel postbacks on BOTH Y and N — spec confirms, catalog originally misflagged
+    { match: 'includes', token: 'GroupTravel', trigger: 'radio-any' },
+    // OtherPersonsTravelingWithYou: postback on BOTH Y and N (spec pages/07_travel_companions.md line 10)
+    { match: 'includes', token: 'OtherPersonsTravelingWithYou', trigger: 'radio-any' },
 ];
 
 export function triggersPostback(id: string, value?: string): boolean {

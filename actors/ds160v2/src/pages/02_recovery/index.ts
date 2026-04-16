@@ -5,7 +5,7 @@ import type { PageModule } from '../types.js';
 export const RECOVERY_MODULE: PageModule = {
     id: '02_recovery',
     async detect(page: Page) {
-        return /Recovery|Retrieve|ConfirmApplicationID/i.test(page.url());
+        return /Recovery\.aspx|Retrieve/i.test(page.url());
     },
     run: runRecoveryPage,
 };

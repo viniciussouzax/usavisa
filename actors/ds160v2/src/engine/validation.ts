@@ -52,24 +52,52 @@ export interface ValidationError {
 export async function readValidationSummary(page: Page): Promise<ValidationError[]> {
     return page.evaluate(() => {
         const errors: Array<{ source: 'summary' | 'validator'; message: string; fieldId?: string }> = [];
+
+        // Primary: <li> items inside any element whose id contains "ValidationSummary"
+        // or class includes validation-summary-errors / alSummary.
         document
-            .querySelectorAll<HTMLElement>('.validation-summary-errors li, [id*="alSummary"] li')
+            .querySelectorAll<HTMLElement>(
+                '.validation-summary-errors li, [id*="alSummary"] li, [id*="ValidationSummary"] li',
+            )
             .forEach((li) => {
                 const text = (li.textContent ?? '').trim();
                 if (text) errors.push({ source: 'summary', message: text });
             });
+
+        // Fallback: if no <li>s found, read the visible summary container text directly.
+        if (errors.length === 0) {
+            document.querySelectorAll<HTMLElement>('[id*="ValidationSummary"]').forEach((el) => {
+                const style = el.style;
+                if (style.display === 'none' || style.visibility === 'hidden') return;
+                const text = (el.textContent ?? '').trim();
+                if (!text) return;
+                // Split multi-message summaries on common delimiters.
+                const parts = text.split(/(?:\.|\n|  )+/).map((p) => p.trim()).filter(Boolean);
+                parts.forEach((p) => {
+                    if (p.length > 3 && !/correct all areas/i.test(p)) {
+                        errors.push({ source: 'summary', message: p });
+                    }
+                });
+            });
+        }
+
+        // Per-field validators (visible ones)
         document
             .querySelectorAll<HTMLElement>(
-                '[id*="RequiredFieldValidator"], [id*="RangeValidator"], [id*="fv"]',
+                '[id*="RequiredFieldValidator"], [id*="RangeValidator"], [id*="fv"], [id*="CustomValidator"]',
             )
             .forEach((el) => {
                 const style = el.style;
                 if (style.display === 'none' || style.visibility === 'hidden') return;
                 const text = (el.textContent ?? '').trim();
                 if (!text) return;
-                const controlId = el.getAttribute('data-val-controltovalidate') ?? el.getAttribute('controltovalidate') ?? undefined;
+                const controlId =
+                    el.getAttribute('data-val-controltovalidate') ??
+                    el.getAttribute('controltovalidate') ??
+                    undefined;
                 errors.push({ source: 'validator', message: text, fieldId: controlId ?? undefined });
             });
+
         return errors;
     });
 }

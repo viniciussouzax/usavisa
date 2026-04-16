@@ -38,6 +38,11 @@ export interface ErrorLogRecord {
     screenshotKey?: string;
     htmlKey?: string;
     artifactUrl?: string;
+    stepCounter?: number;
+    summary?: string;
+    validators?: Array<{ id: string; message: string; fieldId?: string }>;
+    lblErrors?: string[];
+    validationSummary?: string[];
     createdAt: string;
 }
 
@@ -77,6 +82,11 @@ export async function recordErrorLog(
         screenshotKey?: string;
         htmlKey?: string;
         artifactUrl?: string;
+        stepCounter?: number;
+        summary?: string;
+        validators?: Array<{ id: string; message: string; fieldId?: string }>;
+        lblErrors?: string[];
+        validationSummary?: string[];
     },
 ): Promise<void> {
     // EngineError already carries a classified cause — respect it.
@@ -96,6 +106,11 @@ export async function recordErrorLog(
         screenshotKey: ctx.screenshotKey,
         htmlKey: ctx.htmlKey,
         artifactUrl: ctx.artifactUrl,
+        stepCounter: ctx.stepCounter,
+        summary: ctx.summary,
+        validators: ctx.validators,
+        lblErrors: ctx.lblErrors,
+        validationSummary: ctx.validationSummary,
         createdAt: new Date().toISOString(),
     };
     if (err instanceof Error) {

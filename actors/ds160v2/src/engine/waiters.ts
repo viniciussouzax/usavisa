@@ -66,13 +66,19 @@ export async function countVisibleFields(page: Page): Promise<number> {
     });
 }
 
+// Phase 2 postback completion — DOM-side settle.
+// Tick + poll defaults come from env so behavior can be tuned per environment
+// (spec §8.5 "Timeouts Sao Configuraveis - Nao Hardcoded").
+const DEFAULT_STABLE_TICKS = Number(process.env.DS160_STABLE_TICKS ?? 3);
+const DEFAULT_STABLE_POLL_MS = Number(process.env.DS160_STABLE_POLL_MS ?? 150);
+
 export async function waitForStableCount(
     page: Page,
     opts: { stableTicks?: number; timeoutMs?: number; pollMs?: number } = {},
 ): Promise<void> {
-    const stableTicks = opts.stableTicks ?? 3;
+    const stableTicks = opts.stableTicks ?? DEFAULT_STABLE_TICKS;
     const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    const pollMs = opts.pollMs ?? 150;
+    const pollMs = opts.pollMs ?? DEFAULT_STABLE_POLL_MS;
     const deadline = Date.now() + timeoutMs;
 
     let last = await countVisibleFields(page);

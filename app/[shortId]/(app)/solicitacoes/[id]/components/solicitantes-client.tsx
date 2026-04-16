@@ -70,6 +70,7 @@ import { regenerateSolicitanteShareLinkAction } from "@/shared/behaviors/solicit
 import { createSolicitanteAction } from "@/shared/behaviors/solicitante/actions/create-solicitante.action";
 import { updateSolicitanteAction } from "@/shared/behaviors/solicitante/actions/update-solicitante.action";
 import { deleteSolicitanteAction } from "@/shared/behaviors/solicitante/actions/delete-solicitante.action";
+import { dispatchDs160RunAction } from "@/shared/behaviors/solicitante/actions/dispatch-ds160-run.action";
 import { updateSolicitacaoAction } from "@/shared/behaviors/solicitacao/actions/update-solicitacao.action";
 import { archiveSolicitacaoAction } from "@/shared/behaviors/solicitacao/actions/archive-solicitacao.action";
 import { useRouter } from "next/navigation";
@@ -689,6 +690,23 @@ function SolicitanteDetailDrawer({
     });
   }
 
+  function dispatchAutomation() {
+    if (!confirm(`Disparar automação DS-160 para ${solicitante.nome}?`)) return;
+    startTransition(async () => {
+      const res = await dispatchDs160RunAction({ solicitanteUid: solicitante.id, mode: "real" });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(`Automação iniciada: ${res.runId}`, {
+        action: {
+          label: "Abrir Apify",
+          onClick: () => window.open(res.consoleUrl, "_blank"),
+        },
+      });
+    });
+  }
+
   return (
     <SheetContent side="right" className="w-full sm:max-w-2xl">
       <SheetHeader>
@@ -774,6 +792,23 @@ function SolicitanteDetailDrawer({
               >
                 <Trash2 className="mr-1 h-4 w-4" />
                 Remover
+              </Button>
+            </div>
+
+            <div className="grid gap-2 pt-4 border-t">
+              <Label>Automação DS-160</Label>
+              <p className="text-xs text-muted-foreground">
+                Dispara o preenchimento automático no site do CEAC. O solicitante precisa ter finalizado o formulário.
+              </p>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={dispatchAutomation}
+                disabled={pending}
+                className="w-fit"
+              >
+                <RefreshCw className="mr-1 h-4 w-4" />
+                Disparar automação
               </Button>
             </div>
           </div>

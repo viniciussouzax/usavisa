@@ -73,9 +73,35 @@ export async function solveBotDetectCaptcha(page: Page, ctx: CaptchaContext = {}
 
 async function captureCaptchaImage(page: Page): Promise<string | undefined> {
     for (const sel of IMAGE_SELECTORS) {
-        const el = await page.$(sel);
-        if (!el) continue;
-        const buf = await el.screenshot({ type: 'png' }).catch(() => undefined);
+        const count = await page.locator(sel).count();
+        if (count === 0) continue;
+
+        // Wait for the image to be fully loaded + visible before screenshot.
+        const loaded = await page
+            .waitForFunction(
+                (selector) => {
+                    const img = document.querySelector<HTMLImageElement>(selector);
+                    return Boolean(img && img.complete && img.naturalWidth > 0 && img.offsetParent !== null);
+                },
+                sel,
+                { timeout: 15_000 },
+            )
+            .then(() => true)
+            .catch(() => false);
+
+        if (!loaded) {
+            logWarning(`captureCaptchaImage: ${sel} found but never became loaded-visible within 15s`);
+            continue;
+        }
+
+        const buf = await page
+            .locator(sel)
+            .first()
+            .screenshot({ type: 'png' })
+            .catch((e) => {
+                logWarning(`captureCaptchaImage: screenshot failed on ${sel}: ${e instanceof Error ? e.message : e}`);
+                return undefined;
+            });
         if (!buf) continue;
         return Buffer.from(buf).toString('base64');
     }
@@ -95,13 +121,33 @@ async function injectCaptchaAnswer(page: Page, text: string): Promise<boolean> {
 }
 
 export async function reloadCaptcha(page: Page): Promise<void> {
+    let clicked = false;
     for (const sel of RELOAD_SELECTORS) {
         const el = await page.$(sel);
         if (!el) continue;
         await actAndWaitForPostback(page, async () => {
             await el.click({ force: true });
         });
-        return;
+        clicked = true;
+        break;
+    }
+    if (!clicked) {
+        logWarning('reloadCaptcha: no reload link/icon found — trying to wait for new image anyway');
+    }
+    // Give the server a chance to swap the image. Wait for at least one captcha image to be loaded.
+    for (const sel of IMAGE_SELECTORS) {
+        const ok = await page
+            .waitForFunction(
+                (selector) => {
+                    const img = document.querySelector<HTMLImageElement>(selector);
+                    return Boolean(img && img.complete && img.naturalWidth > 0 && img.offsetParent !== null);
+                },
+                sel,
+                { timeout: 10_000 },
+            )
+            .then(() => true)
+            .catch(() => false);
+        if (ok) return;
     }
 }
 

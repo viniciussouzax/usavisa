@@ -72,64 +72,78 @@ export async function runSecurityQuestionPage(ctx: PageContext): Promise<PageHan
 }
 
 async function checkPrivacyAct(page: Page): Promise<void> {
-    const checkbox = await page.$(SEL.privacyCheckbox);
-    if (!checkbox) {
-        throw new EngineError('Privacy Act checkbox not found', {
-            cause: 'dom_mismatch',
-            pageName: '03_security_question',
-        });
-    }
-    const alreadyChecked = await checkbox.isChecked();
+    const alreadyChecked = await page
+        .$eval(SEL.privacyCheckbox, (el) => (el as HTMLInputElement).checked)
+        .catch(() => false);
     if (alreadyChecked) return;
+    // Click triggers the postback that re-renders the panel — don't await check() state
+    // (the element detaches before Playwright confirms).
     await actAndWaitForPostback(page, async () => {
-        await checkbox.check({ force: true });
+        await page.click(SEL.privacyCheckbox, { force: true });
     });
 }
 
 async function setupSecurityQuestion(page: Page, data: PageContext['data']): Promise<void> {
     const answer = data.recovery?.securityAnswer;
-    const questionIndex = inferQuestionIndex(data);
-
-    const select = await page.$(SEL.questionSelect);
-    if (select) {
-        const disabled = await select.getAttribute('disabled');
-        if (disabled === null) {
-            // Wait for options to populate (server populates them after the Privacy Act postback).
-            await waitUntil(
-                page,
-                async () =>
-                    (await select.evaluate((el) => (el as HTMLSelectElement).options.length)) > 1,
-                { timeoutMs: 10_000 },
-            );
-            await select.selectOption({ index: questionIndex });
-        } else {
-            logWarning('03_security_question — ddlQuestions disabled; leaving existing question');
-        }
-    }
-
-    if (answer) {
-        const input = await page.$(SEL.answerInput);
-        if (input) {
-            await input.fill(answer);
-            await input.dispatchEvent('blur').catch(() => {});
-        } else {
-            throw new EngineError('Security answer input not found', {
-                cause: 'dom_mismatch',
-                pageName: '03_security_question',
-                fieldId: 'txtAnswer',
-            });
-        }
-    } else {
+    if (!answer) {
         throw new EngineError('Missing recovery.securityAnswer in payload', {
             cause: 'missing_data',
             pageName: '03_security_question',
             fieldId: 'txtAnswer',
         });
     }
+    const questionIndex = inferQuestionIndex(data);
+
+    // Wait for the Privacy Act postback to finish enabling both the question select
+    // and the answer input. The input appears in the DOM only after the postback
+    // completes — querying too early returns null.
+    await waitUntil(
+        page,
+        async () => {
+            const input = await page.$(SEL.answerInput);
+            if (!input) return false;
+            const disabled = await input.getAttribute('disabled');
+            return disabled === null;
+        },
+        { timeoutMs: 15_000 },
+    );
+
+    await waitUntil(
+        page,
+        async () => {
+            const select = await page.$(SEL.questionSelect);
+            if (!select) return false;
+            const disabled = await select.getAttribute('disabled');
+            if (disabled !== null) return false;
+            const optionsCount = await select.evaluate((el) => (el as HTMLSelectElement).options.length);
+            return optionsCount > 1;
+        },
+        { timeoutMs: 15_000 },
+    ).catch(() => {
+        logWarning('03_security_question — ddlQuestions never became enabled');
+    });
+
+    const select = await page.$(SEL.questionSelect);
+    if (select) {
+        const disabled = await select.getAttribute('disabled');
+        if (disabled === null) {
+            await select.selectOption({ index: questionIndex });
+        }
+    }
+
+    const input = await page.$(SEL.answerInput);
+    if (!input) {
+        throw new EngineError('Security answer input still not present after wait', {
+            cause: 'dom_mismatch',
+            pageName: '03_security_question',
+            fieldId: 'txtAnswer',
+        });
+    }
+    await input.fill(answer);
+    await input.dispatchEvent('blur').catch(() => {});
 }
 
-// Pick a deterministic question index from the payload if it provided one,
-// otherwise default to 1 (first question). NEVER invent content.
+// Payload must provide which question to pick (1-20). No hardcoded defaults.
 function inferQuestionIndex(data: PageContext['data']): number {
     const raw = (data.recovery as { securityQuestionIndex?: number | string } | undefined)
         ?.securityQuestionIndex;
@@ -138,7 +152,11 @@ function inferQuestionIndex(data: PageContext['data']): number {
         const n = Number.parseInt(raw, 10);
         if (Number.isFinite(n) && n >= 1 && n <= 20) return n;
     }
-    return 1;
+    throw new EngineError('Missing recovery.securityQuestionIndex in payload (1-20)', {
+        cause: 'missing_data',
+        pageName: '03_security_question',
+        fieldId: 'ddlQuestions',
+    });
 }
 
 async function clickContinue(page: Page): Promise<void> {

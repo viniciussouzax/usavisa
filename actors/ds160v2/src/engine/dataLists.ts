@@ -37,13 +37,20 @@ async function resolveAddButton(page: Page, listName: string): Promise<string | 
 }
 
 // Ensures the DataList has at least `desiredCount` rows. Each click on the "Add Another"
-// button is awaited through the full postback sync.
+// button is awaited through the full postback sync. Returns both the final count and how
+// many rows were added *this call* — the second value is crucial so the engine knows
+// whether a rescan is actually needed (no-op calls must not trigger rescan → infinite loop).
+export interface DataListExpansionResult {
+    count: number;
+    added: number;
+}
+
 export async function ensureDataListRows(
     page: Page,
     listName: string,
     desiredCount: number,
-): Promise<number> {
-    if (desiredCount <= 1) return 1;
+): Promise<DataListExpansionResult> {
+    if (desiredCount <= 1) return { count: 1, added: 0 };
 
     let current = await currentRowCount(page, listName);
     let added = 0;
@@ -64,7 +71,7 @@ export async function ensureDataListRows(
         added += 1;
     }
 
-    return current;
+    return { count: current, added };
 }
 
 // Counts how many rows already exist for a DataList by looking at _ctlNN_ suffixes.

@@ -121,11 +121,41 @@ async function clickStart(page: Page): Promise<void> {
     if (await isModalBlocking(page)) {
         await hideTooltipOverlay(page);
     }
+    // Race-free patience: arm the navigation watcher BEFORE the click, then click,
+    // then wait for any of these to happen: URL leaves Default.aspx, or ValidationSummary
+    // becomes populated (real rejection). Do NOT conclude "silent rejection" just because
+    // URL is still Default.aspx right after the click — the postback may still be in-flight.
+    const navPromise = page
+        .waitForURL((u) => !/Default\.aspx/i.test(String(u)), { timeout: 25_000 })
+        .then(() => 'navigated' as const)
+        .catch(() => 'nav_timeout' as const);
+
+    const summaryPromise = page
+        .waitForFunction(
+            () => {
+                const el = document.querySelector<HTMLElement>('[id*="ValidationSummary"]');
+                if (!el) return false;
+                const style = el.style;
+                if (style.display === 'none' || style.visibility === 'hidden') return false;
+                return (el.textContent ?? '').trim().length > 0;
+            },
+            null,
+            { timeout: 25_000 },
+        )
+        .then(() => 'validation_error' as const)
+        .catch(() => 'no_error' as const);
+
     await page.click(APPLY_SELECTORS.startLink);
-    await page.waitForLoadState('domcontentloaded', { timeout: 45_000 }).catch(() => {});
+
+    // Wait for the first meaningful signal; if both time out we conclude nothing happened.
+    await Promise.race([navPromise, summaryPromise]);
+    // Small settle wait: let any in-flight postback finish rendering (domcontentloaded +
+    // networkidle are both best-effort here).
+    await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
+    await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
 }
 
-const MAX_CAPTCHA_RETRIES = Number(process.env.DS160_CAPTCHA_RETRIES ?? 3);
+const MAX_CAPTCHA_RETRIES = Number(process.env.DS160_CAPTCHA_RETRIES ?? 5);
 
 // Each attempt: solve CAPTCHA → click Start → check URL.
 // If URL changes: success.
@@ -164,7 +194,7 @@ async function attemptStartWithRetries(page: Page): Promise<void> {
         if (summaryText && summaryText.trim().length > 0) {
             // Explicit error visible. If it's CAPTCHA, retry; else throw.
             const lower = summaryText.toLowerCase();
-            const isCaptchaError = /characters.*do not match|captcha|verification/.test(lower);
+            const isCaptchaError = /characters.*do not match|code.*do(es)?.*not match|captcha|verification/.test(lower);
             if (isCaptchaError && attempt < MAX_CAPTCHA_RETRIES) {
                 logInfo(`01_apply attempt ${attempt}: CAPTCHA error — reloading and retrying`);
                 await reloadCaptcha(page);

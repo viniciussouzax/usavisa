@@ -12,6 +12,7 @@ import { recordFillLog, recordErrorLog, logInfo } from './logging/logger.js';
 import type { PageContext } from './pages/types.js';
 import { evaluateDefinitionOfDone } from './worker/dod.js';
 import { captureForDiagnostics } from './lib/screenshot.js';
+import { collectPageErrorContext, summarizePageError } from './logging/errorContext.js';
 
 export interface RouterPayload {
     applicant: DS160Applicant;
@@ -101,6 +102,9 @@ export function buildRouter(payload: RouterPayload) {
                 if (payload.dryRun) return;
             } catch (err) {
                 const artifact = await captureForDiagnostics(page, descriptor.id).catch(() => undefined);
+                const errorCtx = await collectPageErrorContext(page).catch(() => undefined);
+                const summary = errorCtx ? summarizePageError(errorCtx) : undefined;
+                if (summary) log.warning(`DS160 step ${step} error context: ${summary}`);
                 await recordErrorLog(err, {
                     pageName: descriptor.id,
                     applicationId: payload.applicationId,
@@ -109,6 +113,11 @@ export function buildRouter(payload: RouterPayload) {
                     screenshotKey: artifact?.screenshotKey,
                     htmlKey: artifact?.htmlKey,
                     artifactUrl: artifact?.url,
+                    stepCounter: step,
+                    summary,
+                    validators: errorCtx?.visibleValidators,
+                    lblErrors: errorCtx?.lblErrors,
+                    validationSummary: errorCtx?.validationSummary,
                 });
                 log.info(`DS160 step ${step} ← leaving ${descriptor.id} with error in ${Date.now() - runStart}ms`);
                 throw err;

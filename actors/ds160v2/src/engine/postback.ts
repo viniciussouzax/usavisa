@@ -7,48 +7,60 @@
 import type { Page } from 'playwright';
 import { waitUntil, waitForStableCount } from './waiters.js';
 
-const POSTBACK_SERVER_TIMEOUT_MS = Number(process.env.DS160_POSTBACK_SERVER_TIMEOUT_MS ?? 30_000);
-const POSTBACK_DOM_TIMEOUT_MS = Number(process.env.DS160_POSTBACK_DOM_TIMEOUT_MS ?? 15_000);
+// Spec §8.5 — every timeout externalizable via env. Defaults are generous so the
+// engine does not prematurely declare "done" on a slow CEAC response.
+const POSTBACK_SERVER_TIMEOUT_MS = Number(process.env.DS160_POSTBACK_SERVER_TIMEOUT_MS ?? 20_000);
+const POSTBACK_DOM_TIMEOUT_MS = Number(process.env.DS160_POSTBACK_DOM_TIMEOUT_MS ?? 12_000);
 
 async function isInAsyncPostback(page: Page): Promise<boolean> {
-    return page.evaluate(() => {
-        const w = window as unknown as {
-            Sys?: { WebForms?: { PageRequestManager?: { getInstance: () => { get_isInAsyncPostBack: () => boolean } } } };
-        };
-        try {
-            const mgr = w.Sys?.WebForms?.PageRequestManager?.getInstance();
-            return typeof mgr?.get_isInAsyncPostBack === 'function' ? mgr.get_isInAsyncPostBack() : false;
-        } catch {
-            return false;
-        }
-    });
+    try {
+        return await page.evaluate(() => {
+            const w = window as unknown as {
+                Sys?: { WebForms?: { PageRequestManager?: { getInstance: () => { get_isInAsyncPostBack: () => boolean } } } };
+            };
+            try {
+                const mgr = w.Sys?.WebForms?.PageRequestManager?.getInstance();
+                return typeof mgr?.get_isInAsyncPostBack === 'function' ? mgr.get_isInAsyncPostBack() : false;
+            } catch {
+                return false;
+            }
+        });
+    } catch {
+        // context destroyed during navigation — treat as "not in postback" so the caller can proceed
+        return false;
+    }
 }
 
 // Registers an instrumentation flag the first time it is called per page.
 // Guarantees we can observe postbacks that start and finish between our polls.
+// Must tolerate execution-context-destroyed (navigation happening concurrently).
 async function installPostbackObserver(page: Page): Promise<void> {
-    await page.evaluate(() => {
-        const w = window as unknown as {
-            __ds160Postback?: { inFlight: boolean; lastEnd: number };
-            Sys?: { WebForms?: { PageRequestManager?: { getInstance: () => unknown } } };
-        };
-        if (w.__ds160Postback) return;
-        w.__ds160Postback = { inFlight: false, lastEnd: 0 };
-        const mgr = w.Sys?.WebForms?.PageRequestManager?.getInstance() as unknown as {
-            add_beginRequest: (fn: () => void) => void;
-            add_endRequest: (fn: () => void) => void;
-        } | undefined;
-        if (!mgr) return;
-        mgr.add_beginRequest(() => {
-            if (w.__ds160Postback) w.__ds160Postback.inFlight = true;
+    try {
+        await page.evaluate(() => {
+            const w = window as unknown as {
+                __ds160Postback?: { inFlight: boolean; lastEnd: number };
+                Sys?: { WebForms?: { PageRequestManager?: { getInstance: () => unknown } } };
+            };
+            if (w.__ds160Postback) return;
+            w.__ds160Postback = { inFlight: false, lastEnd: 0 };
+            const mgr = w.Sys?.WebForms?.PageRequestManager?.getInstance() as unknown as {
+                add_beginRequest: (fn: () => void) => void;
+                add_endRequest: (fn: () => void) => void;
+            } | undefined;
+            if (!mgr) return;
+            mgr.add_beginRequest(() => {
+                if (w.__ds160Postback) w.__ds160Postback.inFlight = true;
+            });
+            mgr.add_endRequest(() => {
+                if (w.__ds160Postback) {
+                    w.__ds160Postback.inFlight = false;
+                    w.__ds160Postback.lastEnd = Date.now();
+                }
+            });
         });
-        mgr.add_endRequest(() => {
-            if (w.__ds160Postback) {
-                w.__ds160Postback.inFlight = false;
-                w.__ds160Postback.lastEnd = Date.now();
-            }
-        });
-    });
+    } catch {
+        // context destroyed (page navigating) — observer will re-install on next call
+    }
 }
 
 export async function waitForPostbackComplete(page: Page): Promise<void> {

@@ -52,12 +52,12 @@ export const PAGE_ORDER: PageDescriptor[] = [
     {
         id: '02_recovery',
         label: 'Recovery',
-        urlPatterns: [/Retrieve/i, /Recovery/i, /ConfirmApplicationID/i],
+        urlPatterns: [/Retrieve/i, /Recovery\.aspx/i],
     },
     {
         id: '03_security_question',
         label: 'Security Question Setup',
-        urlPatterns: [/SecureQuestion/i],
+        urlPatterns: [/SecureQuestion/i, /ConfirmApplicationID/i],
     },
     {
         id: '04_personal1',
@@ -82,7 +82,7 @@ export const PAGE_ORDER: PageDescriptor[] = [
     {
         id: '08_previous_us_travel',
         label: 'Previous US Travel',
-        urlPatterns: [/previous_travel/i, /previousTravel/i],
+        urlPatterns: [/previousustravel/i, /previous_travel/i],
     },
     {
         id: '09_address_and_phone',
@@ -102,42 +102,43 @@ export const PAGE_ORDER: PageDescriptor[] = [
     {
         id: '12_family1',
         label: 'Family (Parents & Relatives)',
-        urlPatterns: [/complete_family/i, /family1/i],
+        // Match only Relatives (family1). Avoid matching family2/4/5 that share root path.
+        urlPatterns: [/complete_family1\.aspx/i, /node=Relatives/i],
     },
     {
         id: '13_family2_spouse',
         label: 'Family (Spouse)',
-        urlPatterns: [/family2/i, /spouse/i],
+        urlPatterns: [/complete_family2/i, /node=Spouse\b/i],
         isActive: (d) => ['M', 'C', 'P', 'L'].includes(d.personal1?.maritalStatus ?? ''),
     },
     {
         id: '14_deceased_spouse',
         label: 'Deceased Spouse',
-        urlPatterns: [/deceased/i],
+        urlPatterns: [/complete_family5/i, /node=DeceasedSpouse/i, /deceased/i],
         isActive: (d) => d.personal1?.maritalStatus === 'W',
     },
     {
         id: '15_previous_spouse',
         label: 'Previous Spouse',
-        urlPatterns: [/prevspouse/i, /previous_spouse/i],
+        urlPatterns: [/complete_family4/i, /node=PrevSpouse/i, /previous_spouse/i],
         isActive: (d) => d.personal1?.maritalStatus === 'D',
     },
     {
         id: '16_work_education1',
         label: 'Work/Education (Current)',
-        urlPatterns: [/complete_workedu/i, /workEdu1/i],
+        urlPatterns: [/complete_workeducation1\.aspx/i, /node=WorkEducation1/i],
         isActive: (d) => !isUnder14(d),
     },
     {
         id: '17_work_education2',
         label: 'Work/Education (Previous)',
-        urlPatterns: [/workEdu2/i, /previous_workedu/i],
+        urlPatterns: [/complete_workeducation2\.aspx/i, /node=WorkEducation2/i],
         isActive: (d) => !isUnder14(d),
     },
     {
         id: '18_work_education3',
         label: 'Work/Education (Additional)',
-        urlPatterns: [/workEdu3/i, /additional_workedu/i],
+        urlPatterns: [/complete_workeducation3\.aspx/i, /node=WorkEducation3/i],
         isActive: (d) => !isUnder14(d),
     },
     {

@@ -322,6 +322,7 @@ export interface DS160Applicant {
     photo?: {
         path?: string;
         base64?: string;
+        url?: string;
     };
 
     signAndSubmit?: {
@@ -343,4 +344,7 @@ export interface ActorInput {
     applicant?: DS160Applicant;
     mode?: 'real' | 'dry_run';
     captchaMode?: 'capmonster' | 'ai_vision';
+    credentials?: {
+        capmonsterApiKey?: string;
+    };
 }

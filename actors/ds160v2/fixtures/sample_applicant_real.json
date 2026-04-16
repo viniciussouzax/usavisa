@@ -6,24 +6,275 @@
             "visitedSections": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15]
         },
         "location": { "location": "RCF" },
+        "photo": { "path": "C:/Users/azuos/Downloads/solicitante_teste.jpg" },
         "personal1": {
-            "surname": "SOUZA SILVA",
-            "givenName": "JOSE CARLOS",
-            "fullNameNative": "JOSE CARLOS SOUZA SILVA",
-            "otherNamesUsed": "Y",
-            "telecode": "N",
+            "dob": { "day": "18", "year": "1992", "month": "APR" },
             "sex": "M",
-            "maritalStatus": "W",
-            "dob": { "day": "18", "month": "APR", "year": "1992" },
+            "surname": "SOUZA SILVA",
+            "telecode": "N",
+            "givenName": "JOSE CARLOS",
+            "otherNames": [
+                { "surname": "SILVA", "givenName": "JOSE" },
+                { "surname": "SOUZA", "givenName": "CARLOS" }
+            ],
             "cityOfBirth": "SAO PAULO",
             "stateOfBirth": "SP",
-            "countryOfBirth": "BRAZIL"
+            "maritalStatus": "W",
+            "countryOfBirth": "BRAZIL",
+            "fullNameNative": "JOSE CARLOS SOUZA SILVA",
+            "otherNamesUsed": "Y"
+        },
+        "personal2": {
+            "ssn": { "p1": "123", "p2": "45", "p3": "6789" },
+            "taxId": "5888888888888888",
+            "nationalId": "42055220541",
+            "nationality": "BRAZIL",
+            "otherNationality": "Y",
+            "permanentResident": "Y",
+            "otherNationalities": [
+                { "country": "DOMN", "hasPassport": "Y", "passportNumber": "1234567899999" },
+                { "country": "HAT", "hasPassport": "Y", "passportNumber": "YUIWW78E623" },
+                { "country": "ITLY", "hasPassport": "Y", "passportNumber": "JEWHFUIEHF" }
+            ],
+            "permanentResidentCountries": [
+                { "country": "AUST" },
+                { "country": "GUAT" },
+                { "country": "HNK" }
+            ]
         },
         "travel": {
+            "payerEmail": "V@F.COM",
+            "payerPhone": "11988541122",
+            "arrivalCity": "MIAMI",
+            "arrivalDate": { "day": "10", "year": "2027", "month": "JAN" },
+            "whoIsPaying": "O",
+            "payerSurname": "HOSPEDADO",
+            "usAddressZip": "55555",
+            "arrivalFlight": "2325245",
+            "departureCity": "SAO PAULO",
+            "departureDate": { "day": "18", "year": "2027", "month": "SEP" },
             "purposeOfTrip": "B1/B2",
+            "usAddressCity": "HOSPEDADO",
+            "payerGivenName": "HOSPEDADO",
+            "usAddressState": "ID",
+            "departureFlight": "44343FRE43",
+            "payerPersonCity": "SAO PAULO",
             "purposeCategory": "B",
             "hasSpecificPlans": "Y",
-            "whoIsPaying": "O"
+            "payerPersonState": "SP",
+            "payerSameAddress": "N",
+            "usAddressStreet1": "HOSPEDADO",
+            "usAddressStreet2": "DGYGDSIFLSA",
+            "payerRelationship": "O",
+            "specificLocations": [
+                { "location": "WFHIWEHNFE" },
+                { "location": "LKNRGJKERN" },
+                { "location": "PJGERIGJRIE" }
+            ],
+            "payerPersonCountry": "BRAZIL",
+            "payerPersonStreet1": "RUA TAGUA",
+            "payerPersonStreet2": "LIBERDADE",
+            "payerPersonPostalCode": "01508010"
+        },
+        "travelCompanions": {
+            "companions": [
+                { "surname": "EUR", "givenName": "MARCOS", "relationship": "P" },
+                { "surname": "DOIS", "givenName": "FILHO", "relationship": "C" },
+                { "surname": "TRES", "givenName": "FILHO", "relationship": "O" }
+            ],
+            "partOfGroup": "N",
+            "travelingWithOthers": "Y"
+        },
+        "previousUSTravel": {
+            "tenPrint": "Y",
+            "visaLost": "Y",
+            "hasUSVisa": "Y",
+            "vwpDenial": "Y",
+            "hasBeenInUS": "Y",
+            "sameCountry": "Y",
+            "visaRefused": "Y",
+            "lostVisaYear": "2000",
+            "sameVisaType": "Y",
+            "visaCancelled": "Y",
+            "previousVisits": [
+                { "arrivalDate": { "day": "15", "year": "1999", "month": "FEB" }, "lengthOfStay": "20", "lengthOfStayUnit": "D" },
+                { "arrivalDate": { "day": "16", "year": "2000", "month": "OCT" }, "lengthOfStay": "20", "lengthOfStayUnit": "D" },
+                { "arrivalDate": { "day": "17", "year": "2001", "month": "SEP" }, "lengthOfStay": "20", "lengthOfStayUnit": "D" }
+            ],
+            "driversLicenses": [
+                { "state": "IA", "number": "43543534" },
+                { "state": "DE", "number": "36546546" },
+                { "state": "CA", "number": "3665654" }
+            ],
+            "hasDriversLicense": "Y",
+            "immigrantPetition": "Y",
+            "previousVisaNumber": "95292929",
+            "lostVisaExplanation": "JWBFIUWEBFUE",
+            "cancelledExplanation": "EOWHFOEWHOFHEW",
+            "vwpDenialExplanation": "OWOIJIJWEIF",
+            "previousVisaIssueDate": { "day": "13", "year": "2000", "month": "MAR" },
+            "visaRefusedExplanation": "PPWJIEWNIFW",
+            "immigrantPetitionExplanation": "WOEFIHEIW"
+        },
+        "addressPhone": {
+            "email": "H@H.COM",
+            "phone": "11988442255",
+            "homeCity": "SAO PAULO",
+            "mailCity": "TIETE",
+            "homeState": "SP",
+            "mailState": "SP",
+            "homeCountry": "BRAZIL",
+            "homeStreet1": "RUA TAGUA",
+            "homeStreet2": "LIBERDADE",
+            "mailCountry": "BRAZIL",
+            "mailStreet1": "RUA 9 DE JULHO",
+            "mailStreet2": "CENTRO",
+            "mobilePhone": "11988442250",
+            "socialMedia": [
+                { "handle": "CJIPOJOP", "platform": "RDDT" },
+                { "handle": "OREGJPERJGP", "platform": "YTUB" },
+                { "handle": "REGEGER", "platform": "FCBK" },
+                { "handle": "UIGIGIIHI", "platform": "VINE" }
+            ],
+            "businessPhone": "11988442256",
+            "homePostalCode": "01508010",
+            "mailPostalCode": "18530079",
+            "additionalEmails": "Y",
+            "additionalPhones": "Y",
+            "mailingAddressSame": "N",
+            "additionalSocialMedia": "Y",
+            "additionalPhoneNumbers": [
+                { "phone": "115522225555" },
+                { "phone": "1155222255588" },
+                { "phone": "1155222257474" }
+            ],
+            "additionalEmailAddresses": [
+                { "email": "ERGEQR@RGR.COM" },
+                { "email": "EGEQR@RGR.COM" },
+                { "email": "ERSGEQR@RGR.COM" }
+            ],
+            "additionalSocialMediaAccounts": [
+                { "handle": "OUHUPU", "platform": "JBJIBUHUO" },
+                { "handle": "CHUHUHIUH", "platform": "OHUUUOHO" },
+                { "handle": "UTDRDRDR", "platform": "IUGYPGYG8YG" }
+            ]
+        },
+        "passport": {
+            "type": "R",
+            "number": "FX34456",
+            "bookNumber": "RGERGREG",
+            "issuedCity": "SAO PAULO",
+            "issuedState": "SAO PAULO",
+            "issuanceDate": { "day": "5", "year": "2020", "month": "JUN" },
+            "lostOrStolen": "Y",
+            "issuedCountry": "BRAZIL",
+            "lostPassports": [
+                { "number": "EWE867", "country": "BRAZIL", "explanation": "WEFPJWEIFJIEOWJ" },
+                { "number": "PFIJWEIEJ", "country": "BRAZIL", "explanation": "PEWIJFIWEJFICF" },
+                { "number": "OKOEKW", "country": "BRAZIL", "explanation": "IWEJFIWEJIFEW" }
+            ],
+            "expirationDate": { "day": "15", "year": "2028", "month": "FEB" },
+            "issuingCountry": "BRAZIL"
+        },
+        "usContact": {
+            "contactType": "O",
+            "organization": "OHFOUHDF",
+            "relationship": "O",
+            "usContactZip": "32830",
+            "usContactCity": "ORLANDO",
+            "usContactEmail": "UEUH@GMAIL.COM",
+            "usContactPhone": "4079396244",
+            "usContactState": "FL",
+            "usContactStreet1": "1180 SEVEN SEAS DR",
+            "usContactStreet2": "HGHGHSFGH"
+        },
+        "family1": {
+            "fatherDob": { "day": "1", "year": "1953", "month": "FEB" },
+            "motherDob": { "day": "5", "year": "1953", "month": "APR" },
+            "relatives": [
+                { "type": "C", "status": "O", "surname": "SILVA", "givenName": "MARIA LUCIA" },
+                { "type": "C", "status": "C", "surname": "SOUZA", "givenName": "PEDRO ANTONIO" },
+                { "type": "F", "status": "P", "surname": "SOUZA", "givenName": "JOAO CARLOS" }
+            ],
+            "fatherInUS": "Y",
+            "motherInUS": "Y",
+            "fatherSurname": "SOUZA",
+            "motherSurname": "SILVA",
+            "fatherUSStatus": "O",
+            "motherUSStatus": "P",
+            "fatherGivenName": "ANTONIO CARLOS",
+            "motherGivenName": "MARIA APARECIDA",
+            "immediateRelativesInUS": "Y"
+        },
+        "deceasedSpouse": {
+            "dob": { "day": "5", "year": "1990", "month": "FEB" },
+            "surname": "OLIVEIRA",
+            "givenName": "FERNANDA",
+            "cityOfBirth": "SAO PAULO",
+            "nationality": "BRAZIL",
+            "countryOfBirth": "BRAZIL"
+        },
+        "workEducation1": {
+            "duties": "KNUUIBIUBI",
+            "occupation": "O",
+            "employerCity": "SAO PAULO",
+            "employerName": "EMPRESA TESTE ABC",
+            "employerPhone": "11955220033",
+            "employerState": "SP",
+            "monthlySalary": "2000",
+            "employerCountry": "BRAZIL",
+            "employerStreet1": "RUA TAGUA",
+            "employerStreet2": "LIBERDADE",
+            "otherOccupation": "PUBLICPUBLICPUBLICPUBLICPUBLICPUBLIC",
+            "employerStartDate": { "day": "3", "year": "2010", "month": "MAR" },
+            "employerPostalCode": "01508010"
+        },
+        "workEducation2": {
+            "education": [
+                { "name": "UWEHGFUIE", "course": "OIHUPHPUHP", "endDate": { "day": "16", "year": "2001", "month": "NOV" }, "startDate": { "day": "15", "year": "2000", "month": "JUN" }, "schoolCity": "SAO PAULO", "schoolState": "SP", "schoolCountry": "BRAZIL", "schoolStreet1": "RUA TAGUA", "schoolStreet2": "LIBERDADE", "schoolPostalCode": "01508010" },
+                { "name": "POHPUIGI", "course": "CJIHIOH", "endDate": { "day": "18", "year": "2009", "month": "JUL" }, "startDate": { "day": "21", "year": "2008", "month": "OCT" }, "schoolCity": "SAO PAULO", "schoolState": "SP", "schoolCountry": "BRAZIL", "schoolStreet1": "RUA TAGUA", "schoolStreet2": "LIBERDADE", "schoolPostalCode": "01508010" },
+                { "name": "UHPOH", "course": "IOHOPHO", "endDate": { "day": "19", "year": "2007", "month": "NOV" }, "startDate": { "day": "17", "year": "2006", "month": "OCT" }, "schoolCity": "SAO PAULO", "schoolState": "SP", "schoolCountry": "BRAZIL", "schoolStreet1": "RUA TAGUA", "schoolStreet2": "LIBERDADE", "schoolPostalCode": "01508010" }
+            ],
+            "hasEducation": "Y",
+            "previousEmployment": [
+                { "name": "UWEHGFUIE", "duties": "KBHJIIH", "endDate": { "day": "20", "year": "2001", "month": "NOV" }, "jobTitle": "UWEHGFUIE", "startDate": { "day": "15", "year": "2000", "month": "NOV" }, "supervisor": "UWEHGFU", "prevEmplCity": "SAO PAULO", "prevEmplPhone": "11988552200", "prevEmplState": "SP", "prevEmplCountry": "BRAZIL", "prevEmplStreet1": "RUA TAGUA", "prevEmplStreet2": "LIBERDADE", "prevEmplPostalCode": "01508010", "supervisorGivenName": "UWWEFR" },
+                { "name": "HUDHUD", "duties": "POIOPRJIHJRT", "endDate": { "day": "18", "year": "2006", "month": "JUN" }, "jobTitle": "UWEHGFUH", "startDate": { "day": "17", "year": "2005", "month": "NOV" }, "supervisor": "CCJPI", "prevEmplCity": "SAO PAULO", "prevEmplPhone": "22558855233", "prevEmplState": "SP", "prevEmplCountry": "BRAZIL", "prevEmplStreet1": "RUA TAGUA", "prevEmplStreet2": "LIBERDADE", "prevEmplPostalCode": "01508010", "supervisorGivenName": "OJPIJIPJ" },
+                { "name": "HIHIHOI", "duties": "UHUIPGIUG", "endDate": { "day": "17", "year": "2007", "month": "MAR" }, "jobTitle": "UWGYRJYT", "startDate": { "day": "16", "year": "2006", "month": "JUL" }, "supervisor": "PIJIHPOH", "prevEmplCity": "SAO PAULO", "prevEmplPhone": "12222225522", "prevEmplState": "SP", "prevEmplCountry": "BRAZIL", "prevEmplStreet1": "RUA TAGUA", "prevEmplStreet2": "LIBERDADE", "prevEmplPostalCode": "01508010", "supervisorGivenName": "OJIJIU8U" }
+            ],
+            "hasPreviousEmployment": "Y"
+        },
+        "workEducation3": {
+            "military": [
+                { "rank": "SOLDADO", "branch": "EXERCITO", "country": "BRAZIL", "endDate": { "day": "13", "year": "2011", "month": "OCT" }, "specialty": "INFANTARIA", "startDate": { "day": "16", "year": "2010", "month": "FEB" } },
+                { "rank": "CABO", "branch": "EXERCITO", "country": "BRAZIL", "endDate": { "day": "14", "year": "2013", "month": "FEB" }, "specialty": "LOGISTICA", "startDate": { "day": "14", "year": "2012", "month": "APR" } }
+            ],
+            "clanTribe": "N",
+            "languages": [{ "name": "PORTUGUES" }, { "name": "INGLES" }, { "name": "ESPANHOL" }],
+            "insurgentOrg": "Y",
+            "organizations": [{ "name": "ASSOCIACAO COMERCIAL SP" }, { "name": "SINDICATO DOS COMERCIARIOS" }],
+            "militaryService": "Y",
+            "countriesVisited": "Y",
+            "specializedSkills": "Y",
+            "organizationMember": "Y",
+            "countriesVisitedList": [
+                { "country": "ALB" }, { "country": "ARG" }, { "country": "COL" }, { "country": "FRAN" }, { "country": "EST" }
+            ],
+            "insurgentOrgExplanation": "MEMBRO DE ASSOCIACAO CIVIL LEGAL",
+            "specializedSkillsExplanation": "INFORMATICA E PROGRAMACAO"
+        },
+        "recovery": {
+            "securityQuestionIndex": 1,
+            "securityAnswer": "VO"
+        },
+        "security": {
+            "deport": "N", "disease": "N", "torture": "N", "arrested": "N", "disorder": "N",
+            "drugUser": "N", "genocide": "N", "attWoReimb": "N", "exViolence": "N", "transplant": "N",
+            "renounceExp": "N", "childCustody": "N", "childSoldier": "N", "failToAttend": "N", "prostitution": "N",
+            "terroristOrg": "N", "terroristRel": "N", "visaViolation": "N", "removalHearing": "N",
+            "illegalActivity": "N", "moneyLaundering": "N", "votingViolation": "N", "humanTrafficking": "N",
+            "immigrationFraud": "N", "religiousFreedom": "N", "terroristSupport": "N", "terroristActivity": "N",
+            "populationControls": "N", "controlledSubstances": "N", "humanTraffickingRelated": "N",
+            "assistedSevereTrafficking": "N"
         }
     },
     "mode": "real"

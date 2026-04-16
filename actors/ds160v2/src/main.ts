@@ -27,6 +27,13 @@ const applicant: DS160Applicant | undefined = input.applicant;
 const dryRun = input.mode === 'dry_run';
 const workerId = process.env.APIFY_ACTOR_RUN_ID ?? `local-${process.pid}`;
 
+// Hoist runtime credentials delivered by the dispatcher (read from the DB's integracoes
+// table on the Next.js side) into the actor's env before any page touches them.
+if (input.credentials?.capmonsterApiKey && !process.env.CAPMONSTER_CLIENT_KEY) {
+    process.env.CAPMONSTER_CLIENT_KEY = input.credentials.capmonsterApiKey;
+    logInfo('credentials.capmonsterApiKey → CAPMONSTER_CLIENT_KEY (from dispatcher)');
+}
+
 // DoR — fail fast if mandatory fields are missing. No browser opened.
 const dorFailures = checkDefinitionOfReady(applicant);
 if (dorFailures.length > 0) {
@@ -50,10 +57,10 @@ onShutdown(async () => {
     });
 });
 
-// Proxy — residential is mandatory in production (actor-base.md §4).
-// For local smoke tests the plan may not include RESIDENTIAL yet — allow override via env.
-//   DS160_PROXY_DISABLE=true  → run without proxy (browser opens direct, CEAC may block)
-//   DS160_PROXY_GROUPS=AUTO   → override groups (comma-separated)
+// Proxy — RESIDENTIAL é o default (stealth, plano atual contempla).
+// Overrides via env:
+//   DS160_PROXY_DISABLE=true         → sem proxy (smoke tests locais)
+//   DS160_PROXY_GROUPS=BUYPROXIES94952 → datacenter US (fallback mais barato)
 const proxyDisabled = process.env.DS160_PROXY_DISABLE === 'true';
 const proxyGroupsEnv = process.env.DS160_PROXY_GROUPS;
 const proxyGroups = proxyGroupsEnv
@@ -62,8 +69,8 @@ const proxyGroups = proxyGroupsEnv
 const proxyConfiguration = proxyDisabled
     ? undefined
     : await Actor.createProxyConfiguration({
-        checkAccess: true,
         groups: proxyGroups,
+        countryCode: 'US',
     });
 logInfo(
     proxyDisabled
@@ -79,22 +86,23 @@ const router = buildRouter({
 });
 
 const debugMode = process.env.DS160_DEBUG === 'true';
+const slowMo = Number(process.env.DS160_SLOW_MO ?? (debugMode ? 150 : 0));
 if (debugMode) {
-    logInfo('DEBUG mode ON — retries disabled, slow-motion 800ms, browser stays open on exit');
+    logInfo(`DEBUG mode ON — retries disabled, slow-motion ${slowMo}ms`);
 }
 
 const crawler = new PlaywrightCrawler({
     proxyConfiguration,
     maxRequestsPerCrawl: 60,
     maxRequestRetries: debugMode ? 0 : 3,
-    requestHandlerTimeoutSecs: debugMode ? 600 : 300,
+    requestHandlerTimeoutSecs: debugMode ? 1_800 : 600,
     navigationTimeoutSecs: 60,
     maxConcurrency: 1,
     requestHandler: router,
     launchContext: {
         launchOptions: {
             args: ['--disable-gpu'],
-            ...(debugMode ? { slowMo: 800 } : {}),
+            ...(slowMo > 0 ? { slowMo } : {}),
         },
     },
 });

@@ -2,6 +2,8 @@
 // Constantes de domínio — não vivem no banco, são enum-like
 // ============================================================================
 
+import { APIFY_STAGES, actorIdKey } from "@/shared/integrations/apify/stages";
+
 export const ETAPAS = [
   "Triagem",
   "Documentação",
@@ -207,12 +209,18 @@ export const GLOBAL_INTEGRATION_CATALOG: Integracao[] = [
     id: "apify",
     nome: "Apify",
     categoria: "Automação",
-    descricao: "Automação web e scraping de formulários",
+    descricao: "Plataforma de automação — um actor por etapa do processo (DS-160, Status Check, AIS).",
     conectado: false,
     docsUrl: "https://docs.apify.com",
     fields: [
       { key: "apiToken", label: "API Token", type: "password", required: true, placeholder: "apify_api_..." },
-      { key: "actorId", label: "Actor ID padrão", type: "text", hint: "ID do actor de DS-160, opcional" },
+      ...APIFY_STAGES.map((s) => ({
+        key: actorIdKey(s.slug),
+        label: s.label,
+        type: "text" as const,
+        placeholder: "username~actor-name",
+        hint: "hint" in s ? s.hint : "ID do actor no Apify (formato: user~actor). Deixe vazio se a etapa ainda não tem actor.",
+      })),
     ],
   },
   {
