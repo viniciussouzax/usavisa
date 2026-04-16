@@ -6,6 +6,9 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { authErrorHandler, throwAuthError } from "@/lib/auth/error";
 import { resolveHomeUrl } from "@/lib/auth/home-url";
+import { db } from "@/db";
+import { user as userTable } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 interface ActionResult {
   error: string | null;
@@ -46,7 +49,6 @@ export async function signIn(
   const { email, password } = parsed.data;
 
   let signedUserId: string | null = null;
-  let signedUserRole: string | null | undefined = null;
   try {
     const result = await auth.api.signInEmail({
       headers: await headers(),
@@ -56,15 +58,24 @@ export async function signIn(
       },
     });
     signedUserId = result?.user?.id ?? null;
-    // `role` vem da tabela user como coluna extra via plugin admin.
-    signedUserRole = (result?.user as { role?: string | null } | undefined)?.role ?? null;
   } catch (err) {
     const handled = authErrorHandler(err);
     return { error: handled.message };
   }
 
-  // Não dá pra usar getUser() aqui — o cookie de sessão foi setado na
-  // resposta mas ainda não está nos headers da request atual.
+  // signInEmail não retorna `role` (plugin admin). getUser() não serve aqui
+  // porque o cookie foi setado na resposta, não está nos headers da request.
+  // Busca direto do DB pra decidir o destino.
+  let signedUserRole: string | null = null;
+  if (signedUserId) {
+    const [row] = await db
+      .select({ role: userTable.role })
+      .from(userTable)
+      .where(eq(userTable.id, signedUserId))
+      .limit(1);
+    signedUserRole = row?.role ?? null;
+  }
+
   const fallback = signedUserId
     ? await resolveHomeUrl(signedUserId, signedUserRole)
     : "/";
