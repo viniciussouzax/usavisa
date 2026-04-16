@@ -61,6 +61,7 @@ export function TopBar({ userName, userEmail, userImage, onSignOut }: TopBarProp
 
       <DropdownMenu>
         <DropdownMenuTrigger
+          nativeButton
           render={
             <button
               type="button"
