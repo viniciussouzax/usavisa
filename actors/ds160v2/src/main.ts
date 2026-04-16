@@ -1,54 +1,89 @@
-/**
- * This template is a production ready boilerplate for developing with `PlaywrightCrawler`.
- * Use this to bootstrap your projects using the most up-to-date code.
- * If you're looking for examples or want to learn more, see README.
- */
+// CEAC DS-160 actor — entry point.
+// Orchestrates: input parse → DoR gate → proxy setup → crawler with router → graceful shutdown.
+// See spec/actors/ceac_ds160/ for full architectural rules.
 
-// For more information, see https://crawlee.dev
 import { PlaywrightCrawler } from '@crawlee/playwright';
-// For more information, see https://docs.apify.com/sdk/js
 import { Actor } from 'apify';
 
-// this is ESM project, and as such, it requires you to specify extensions in your relative imports
-// read more about this here: https://nodejs.org/docs/latest-v18.x/api/esm.html#mandatory-file-extensions
-// note that we need to use `.js` even when inside TS files
-import { router } from './routes.js';
+import { buildRouter } from './routes.js';
+import { APPLY_URL } from './pages/01_apply/index.js';
+import type { ActorInput, DS160Applicant } from './schema/types.js';
+import { checkDefinitionOfReady } from './worker/dor.js';
+import { claimTask, releaseTask } from './worker/claim.js';
+import { installGracefulShutdown, onShutdown } from './worker/shutdown.js';
+import { recordErrorLog, logInfo, logWarning } from './logging/logger.js';
+import { EngineError } from './logging/errors.js';
 
-interface Input {
-    startUrls: {
-        url: string;
-        method?: 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'TRACE' | 'OPTIONS' | 'CONNECT' | 'PATCH';
-        headers?: Record<string, string>;
-        userData: Record<string, unknown>;
-    }[];
-    maxRequestsPerCrawl: number;
+await Actor.init();
+installGracefulShutdown();
+
+const input = ((await Actor.getInput()) ?? {}) as ActorInput & { startUrls?: unknown };
+
+// Accept both the real DS160 payload and the stock template fields (the latter are ignored).
+const applicant: DS160Applicant | undefined = input.applicant;
+const dryRun = input.mode === 'dry_run';
+const workerId = process.env.APIFY_ACTOR_RUN_ID ?? `local-${process.pid}`;
+
+// DoR — fail fast if mandatory fields are missing. No browser opened.
+const dorFailures = checkDefinitionOfReady(applicant);
+if (dorFailures.length > 0) {
+    const err = new EngineError(
+        `DoR failed: ${dorFailures.map((f) => `${f.field}(${f.reason})`).join(', ')}`,
+        { cause: 'missing_data' },
+    );
+    await recordErrorLog(err, { workerId, applicantName: '—' });
+    logWarning(`Exiting without browser — ${dorFailures.length} DoR failure(s)`);
+    await Actor.fail(err.message);
+    await Actor.exit();
+    throw err; // unreachable, keeps the type system happy
 }
 
-// Initialize the Apify SDK
-await Actor.init();
+const claim = await claimTask({ taskId: input.taskId, applicationId: input.applicationId });
+logInfo(`Claimed task — workerId=${claim.workerId} taskId=${input.taskId ?? '—'} dryRun=${dryRun}`);
 
-// Structure of input is defined in input_schema.json
-const { startUrls = ['https://apify.com'], maxRequestsPerCrawl = 100 } =
-    (await Actor.getInput<Input>()) ?? ({} as Input);
+onShutdown(async () => {
+    await releaseTask({ taskId: input.taskId, applicationId: input.applicationId }, 'todo', {
+        reason: 'graceful_shutdown',
+    });
+});
 
-// `checkAccess` flag ensures the proxy credentials are valid, but the check can take a few hundred milliseconds.
-// Disable it for short runs if you are sure your proxy configuration is correct
-const proxyConfiguration = await Actor.createProxyConfiguration({ checkAccess: true });
+// Proxy — residential is mandatory per actor-base.md §4. checkAccess validates up front.
+const proxyConfiguration = await Actor.createProxyConfiguration({
+    checkAccess: true,
+    groups: ['RESIDENTIAL'],
+});
+
+const router = buildRouter({
+    applicant: applicant!,
+    dryRun,
+    applicationId: input.applicationId,
+    workerId,
+});
 
 const crawler = new PlaywrightCrawler({
     proxyConfiguration,
-    maxRequestsPerCrawl,
+    maxRequestsPerCrawl: 60,
+    requestHandlerTimeoutSecs: 300,
+    navigationTimeoutSecs: 60,
+    maxConcurrency: 1,
     requestHandler: router,
     launchContext: {
         launchOptions: {
-            args: [
-                '--disable-gpu', // Mitigates the "crashing GPU process" issue in Docker containers
-            ],
+            args: ['--disable-gpu'],
         },
     },
 });
 
-await crawler.run(startUrls);
-
-// Exit successfully
-await Actor.exit();
+try {
+    await crawler.run([APPLY_URL]);
+    await releaseTask({ taskId: input.taskId, applicationId: input.applicationId }, 'done');
+    logInfo('DS-160 run finished');
+} catch (err) {
+    await recordErrorLog(err, { workerId, applicationId: input.applicationId });
+    await releaseTask({ taskId: input.taskId, applicationId: input.applicationId }, 'error', {
+        errorMessage: err instanceof Error ? err.message : String(err),
+    });
+    throw err;
+} finally {
+    await Actor.exit();
+}
