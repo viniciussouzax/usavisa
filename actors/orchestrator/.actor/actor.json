@@ -1,0 +1,11 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "orchestrator",
+    "title": "Pipeline Orchestrator",
+    "description": "Pings the orchestration endpoint to reconcile runs, dispatch retries, and cascade sub-stages.",
+    "version": "0.0",
+    "meta": { "templateId": "ts-start" },
+    "input": "./input_schema.json",
+    "dockerfile": "../Dockerfile"
+}

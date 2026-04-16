@@ -1,0 +1,13 @@
+{
+    "$schema": "https://apify.com/schemas/v1/input.ide.json",
+    "title": "Orchestrator Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "orchestrateUrl": {
+            "title": "Orchestrate URL",
+            "type": "string",
+            "description": "Full URL of the orchestrate API route including secret param"
+        }
+    }
+}
