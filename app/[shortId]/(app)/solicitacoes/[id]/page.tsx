@@ -6,6 +6,7 @@ import { getSolicitacaoByOrgAndHumanId } from "@/shared/models/solicitacao";
 import { listSolicitantesBySolicitacao } from "@/shared/models/solicitante";
 import { getLatestShareLinkForSolicitante } from "@/shared/models/solicitante-share-link";
 import { getFormDataForSolicitante } from "@/shared/models/form-data";
+import { getPipelineLogs } from "@/shared/models/pipeline-log";
 import { SolicitanteListClient } from "./components/solicitantes-client";
 
 export default async function SolicitacaoDetailPage({
@@ -36,13 +37,22 @@ export default async function SolicitacaoDetailPage({
   );
   const initialApplicantLinks = Object.fromEntries(applicantLinks);
 
-  const formDataEntries = await Promise.all(
-    solicitantes.map(async (s) => {
-      const snapshot = await getFormDataForSolicitante(s.id);
-      return [s.id, snapshot] as const;
-    }),
-  );
+  const [formDataEntries, pipelineLogEntries] = await Promise.all([
+    Promise.all(
+      solicitantes.map(async (s) => {
+        const snapshot = await getFormDataForSolicitante(s.id);
+        return [s.id, snapshot] as const;
+      }),
+    ),
+    Promise.all(
+      solicitantes.map(async (s) => {
+        const logs = await getPipelineLogs(s.id);
+        return [s.id, logs] as const;
+      }),
+    ),
+  ]);
   const initialFormData = Object.fromEntries(formDataEntries);
+  const initialPipelineLogs = Object.fromEntries(pipelineLogEntries);
 
   return (
     <SolicitanteListClient
@@ -52,6 +62,7 @@ export default async function SolicitacaoDetailPage({
       initialShareLink={shareLink ?? null}
       initialApplicantLinks={initialApplicantLinks}
       initialFormData={initialFormData}
+      initialPipelineLogs={initialPipelineLogs}
     />
   );
 }

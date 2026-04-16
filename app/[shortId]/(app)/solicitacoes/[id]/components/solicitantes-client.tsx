@@ -51,6 +51,7 @@ import {
   STATUSES,
   etapaTone,
   statusTone,
+  statusesForEtapa,
   type Etapa,
   type Solicitacao,
   type Solicitante,
@@ -71,12 +72,16 @@ import { createSolicitanteAction } from "@/shared/behaviors/solicitante/actions/
 import { updateSolicitanteAction } from "@/shared/behaviors/solicitante/actions/update-solicitante.action";
 import { deleteSolicitanteAction } from "@/shared/behaviors/solicitante/actions/delete-solicitante.action";
 import { dispatchDs160RunAction } from "@/shared/behaviors/solicitante/actions/dispatch-ds160-run.action";
+import type { PipelineLogEntry } from "@/shared/models/pipeline-log";
+import { PipelineProgress } from "@/components/pipeline/PipelineProgress";
+import { PipelineTimeline } from "@/components/pipeline/PipelineTimeline";
 import { updateSolicitacaoAction } from "@/shared/behaviors/solicitacao/actions/update-solicitacao.action";
 import { archiveSolicitacaoAction } from "@/shared/behaviors/solicitacao/actions/archive-solicitacao.action";
 import { useRouter } from "next/navigation";
 
 type ApplicantLinkMap = Record<string, LatestSolicitanteShareLink | null>;
 type FormDataMap = Record<string, FormDataSnapshot>;
+type PipelineLogsMap = Record<string, PipelineLogEntry[]>;
 
 type Props = {
   solicitacao: Solicitacao;
@@ -85,6 +90,7 @@ type Props = {
   initialShareLink: LatestShareLink | null;
   initialApplicantLinks: ApplicantLinkMap;
   initialFormData: FormDataMap;
+  initialPipelineLogs: PipelineLogsMap;
 };
 
 export function SolicitanteListClient({
@@ -94,6 +100,7 @@ export function SolicitanteListClient({
   initialShareLink,
   initialApplicantLinks,
   initialFormData,
+  initialPipelineLogs,
 }: Props) {
   const router = useRouter();
   const [etapaFilter, setEtapaFilter] = useState<Etapa | typeof ALL_ETAPAS>(
@@ -406,6 +413,7 @@ export function SolicitanteListClient({
                   updatedAt: null,
                 }
               }
+              pipelineLogs={initialPipelineLogs[selected.id] ?? []}
               onLinkChange={(next) =>
                 setApplicantLinks((m) => ({ ...m, [selected.id]: next }))
               }
@@ -645,6 +653,7 @@ function SolicitanteDetailDrawer({
   shortId,
   link,
   initialFormSnapshot,
+  pipelineLogs,
   onLinkChange,
   onClose,
 }: {
@@ -652,6 +661,7 @@ function SolicitanteDetailDrawer({
   shortId: string;
   link: LatestSolicitanteShareLink | null;
   initialFormSnapshot: FormDataSnapshot;
+  pipelineLogs: PipelineLogEntry[];
   onLinkChange: (next: LatestSolicitanteShareLink | null) => void;
   onClose: () => void;
 }) {
@@ -725,9 +735,10 @@ function SolicitanteDetailDrawer({
 
       <Tabs defaultValue="info" className="flex flex-1 flex-col overflow-hidden px-4">
         <TabsList className="w-fit">
-          <TabsTrigger value="info">Informações</TabsTrigger>
-          <TabsTrigger value="form">Formulário DS-160</TabsTrigger>
-          <TabsTrigger value="link">Link de acesso</TabsTrigger>
+          <TabsTrigger value="info">Informacoes</TabsTrigger>
+          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="form">Formulario</TabsTrigger>
+          <TabsTrigger value="link">Link</TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="mt-4 flex-1 overflow-y-auto pr-1">
@@ -759,15 +770,15 @@ function SolicitanteDetailDrawer({
             <div className="grid gap-2">
               <Label>Status</Label>
               <div className="flex flex-wrap gap-2">
-                {STATUSES.map((s) => (
+                {(statusesForEtapa(etapa) as readonly string[]).map((s) => (
                   <button
                     type="button"
                     key={s}
-                    onClick={() => setStatus(s)}
+                    onClick={() => setStatus(s as Status)}
                     className="cursor-pointer"
                   >
                     <StatusBadge
-                      tone={s === status ? statusTone(s) : "neutral"}
+                      tone={s === status ? statusTone(s as Status) : "neutral"}
                       className={
                         s === status ? "ring-1 ring-ring" : "opacity-50"
                       }
@@ -810,6 +821,24 @@ function SolicitanteDetailDrawer({
                 <RefreshCw className="mr-1 h-4 w-4" />
                 Disparar automação
               </Button>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pipeline" className="mt-4 flex-1 overflow-y-auto pr-1">
+          <div className="grid gap-6">
+            <div>
+              <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Progresso</h4>
+              <PipelineProgress
+                etapa={solicitante.etapa}
+                subEtapa={solicitante.subEtapa}
+                tarefaAtual={solicitante.tarefaAtual}
+                status={solicitante.status}
+              />
+            </div>
+            <div>
+              <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Timeline</h4>
+              <PipelineTimeline logs={pipelineLogs} />
             </div>
           </div>
         </TabsContent>
