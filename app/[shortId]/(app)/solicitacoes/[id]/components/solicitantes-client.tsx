@@ -72,6 +72,8 @@ import { createSolicitanteAction } from "@/shared/behaviors/solicitante/actions/
 import { updateSolicitanteAction } from "@/shared/behaviors/solicitante/actions/update-solicitante.action";
 import { deleteSolicitanteAction } from "@/shared/behaviors/solicitante/actions/delete-solicitante.action";
 import { dispatchDs160RunAction } from "@/shared/behaviors/solicitante/actions/dispatch-ds160-run.action";
+import { abortRunAction } from "@/shared/behaviors/solicitante/actions/abort-run.action";
+import { continueAfterFixAction } from "@/shared/behaviors/solicitante/actions/continue-after-fix.action";
 import type { PipelineLogEntry } from "@/shared/models/pipeline-log";
 import { PipelineProgress } from "@/components/pipeline/PipelineProgress";
 import { PipelineTimeline } from "@/components/pipeline/PipelineTimeline";
@@ -840,6 +842,50 @@ function SolicitanteDetailDrawer({
               <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Timeline</h4>
               <PipelineTimeline logs={pipelineLogs} />
             </div>
+
+            {solicitante.status === "Executando" && (
+              <div className="pt-4 border-t">
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={pending}
+                  onClick={() => {
+                    if (!confirm("Abortar a execucao em andamento?")) return;
+                    startTransition(async () => {
+                      const res = await abortRunAction({ solicitanteUid: solicitante.id });
+                      if (!res.ok) { toast.error(res.error); return; }
+                      toast.success("Execucao abortada");
+                      router.refresh();
+                    });
+                  }}
+                >
+                  Abortar execucao
+                </Button>
+              </div>
+            )}
+
+            {solicitante.status === "Erro" && (
+              <div className="pt-4 border-t">
+                <p className="mb-2 text-sm text-muted-foreground">
+                  Corrija os dados no formulario e clique para retomar.
+                </p>
+                <Button
+                  size="sm"
+                  disabled={pending}
+                  onClick={() => {
+                    if (!confirm("Continuar automacao com dados corrigidos?")) return;
+                    startTransition(async () => {
+                      const res = await continueAfterFixAction({ solicitanteUid: solicitante.id });
+                      if (!res.ok) { toast.error(res.error); return; }
+                      toast.success(`Automacao retomada: ${res.runId}`);
+                      router.refresh();
+                    });
+                  }}
+                >
+                  Continuar automacao
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
 
