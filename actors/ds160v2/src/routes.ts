@@ -2,12 +2,13 @@
 // The default handler classifies the current page by URL (via PAGE_ORDER) and delegates
 // to the corresponding module. Page modules decide whether to enqueue the next URL.
 
-import { createPlaywrightRouter } from '@crawlee/playwright';
+import { createPlaywrightRouter, NonRetryableError } from '@crawlee/playwright';
 import { PAGE_MODULES } from './pages/index.js';
 import { findPageByUrl } from './schema/pageOrder.js';
 import type { DS160Applicant } from './schema/types.js';
 import { detectPageState, isSessionIrrecoverable } from './engine/state.js';
 import { EngineError } from './logging/errors.js';
+import { classifyError } from './logging/causes.js';
 import { recordFillLog, recordErrorLog, logInfo } from './logging/logger.js';
 import type { PageContext } from './pages/types.js';
 import { evaluateDefinitionOfDone } from './worker/dod.js';
@@ -120,6 +121,12 @@ export function buildRouter(payload: RouterPayload) {
                     validationSummary: errorCtx?.validationSummary,
                 });
                 log.info(`DS160 step ${step} ← leaving ${descriptor.id} with error in ${Date.now() - runStart}ms`);
+                const cause = err instanceof EngineError ? err.cause : classifyError(err);
+                if (!cause.autoRetry) {
+                    throw new NonRetryableError(
+                        `[${cause.id}] ${err instanceof Error ? err.message : String(err)}`,
+                    );
+                }
                 throw err;
             }
         }

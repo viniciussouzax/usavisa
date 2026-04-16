@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 // ============================================================================
@@ -105,6 +105,18 @@ export const organizacao = sqliteTable(
 
     ativa: integer("ativa", { mode: "boolean" }).notNull().default(true),
     plano: text("plano").notNull().default("free"), // "free" | "premium"
+
+    automacaoConfig: text("automacao_config", { mode: "json" })
+      .$type<{
+        maxRetries?: number;
+        cooldownRetry1Min?: number;
+        cooldownRetry2Min?: number;
+        timeoutPorRunMin?: number;
+        custoMaxPorRunUsd?: number;
+        retryAutoEmFalha?: boolean;
+      }>()
+      .notNull()
+      .default({}),
 
     // Página pública (hotpage) — textos exibidos em /[shortId]
     tagline: text("tagline"),
@@ -408,6 +420,41 @@ export const pipelineLog = sqliteTable(
 
 export type InsertPipelineLog = typeof pipelineLog.$inferInsert;
 export type SelectPipelineLog = typeof pipelineLog.$inferSelect;
+
+// ============================================================================
+// Actor Run (rastreamento de cada execucao de actor no Apify)
+// ============================================================================
+
+export const actorRun = sqliteTable(
+  "actor_run",
+  {
+    id: text("id").primaryKey(),
+    solicitanteUid: text("solicitante_uid")
+      .notNull()
+      .references(() => solicitante.uid, { onDelete: "cascade" }),
+    subEtapa: text("sub_etapa").notNull(),
+    actorId: text("actor_id").notNull(),
+    apifyRunId: text("apify_run_id"),
+    tentativa: integer("tentativa").notNull().default(1),
+    status: text("status").notNull().default("Pendente"),
+    applicationId: text("application_id"),
+    custoUsd: real("custo_usd"),
+    duracaoMs: integer("duracao_ms"),
+    agendadoPara: integer("agendado_para", { mode: "timestamp" }),
+    erroTipo: text("erro_tipo"),
+    erroMensagem: text("erro_mensagem"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_actor_run_solicitante").on(t.solicitanteUid)],
+);
+
+export type InsertActorRun = typeof actorRun.$inferInsert;
+export type SelectActorRun = typeof actorRun.$inferSelect;
 
 // ============================================================================
 // Integrações (configuração por org, identificador global)
