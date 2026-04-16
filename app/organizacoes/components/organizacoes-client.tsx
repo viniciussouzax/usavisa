@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/layout/page-header";
 import {
@@ -168,6 +169,7 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [plano, setPlano] = useState<Plano>("free");
+  const [whatsapp, setWhatsapp] = useState("55");
 
   function updateAssessor(key: string, patch: Partial<AssessorDraft>) {
     setAssessores((list) =>
@@ -206,7 +208,7 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
             cnpj: String(fd.get("cnpj") ?? "").trim(),
             email: String(fd.get("email") ?? "").trim(),
             shortId: String(fd.get("shortId") ?? "").trim(),
-            whatsapp: String(fd.get("whatsapp") ?? "").trim(),
+            whatsapp: whatsapp,
             plano,
             assessores: assessores.map((a) => ({
               nome: a.nome,
@@ -269,16 +271,13 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="org-whatsapp">WhatsApp de suporte</Label>
-            <Input
+            <PhoneInput
               id="org-whatsapp"
-              name="whatsapp"
-              placeholder="5511999999999"
-              pattern="[0-9]+"
+              value={whatsapp}
+              onChange={setWhatsapp}
+              placeholder="11988945503"
               required
             />
-            <p className="text-xs text-muted-foreground">
-              Formato internacional sem + ou espaços. Ex: 55 (Brasil) + 11 (DDD) + número.
-            </p>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="org-cnpj">CNPJ</Label>
