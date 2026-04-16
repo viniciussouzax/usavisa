@@ -10,7 +10,7 @@ const assessorSchema = z.object({
   nome: z.string().trim().min(1),
   email: z.string().email(),
   senha: z.string().min(8),
-  role: z.enum(["owner", "admin", "member"]),
+  role: z.enum(["owner", "member"]),
 });
 
 const schema = z.object({

@@ -364,7 +364,6 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="owner">Dono</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="member">Assessor</SelectItem>
                   </SelectContent>
                 </Select>
