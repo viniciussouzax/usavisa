@@ -87,7 +87,9 @@ export const organizacao = sqliteTable(
     id: integer("id").notNull().unique(), // sequencial humano
     shortId: text("short_id").notNull().unique(),
     nome: text("nome").notNull(),
+    razaoSocial: text("razao_social"),
     cnpj: text("cnpj"),
+    email: text("email_org"),
     whatsapp: text("whatsapp").notNull(),
 
     // White label

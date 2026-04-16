@@ -202,7 +202,9 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
           const fd = new FormData(e.currentTarget);
           const res = await createOrganizacaoAction({
             nome: String(fd.get("nome") ?? "").trim(),
+            razaoSocial: String(fd.get("razaoSocial") ?? "").trim(),
             cnpj: String(fd.get("cnpj") ?? "").trim(),
+            email: String(fd.get("email") ?? "").trim(),
             shortId: String(fd.get("shortId") ?? "").trim(),
             whatsapp: String(fd.get("whatsapp") ?? "").trim(),
             plano,
@@ -233,6 +235,23 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
               name="nome"
               placeholder="Ex: VistoPro Consultoria"
               required
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="org-razao-social">Razão social</Label>
+            <Input
+              id="org-razao-social"
+              name="razaoSocial"
+              placeholder="Ex: VistoPro Consultoria LTDA"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="org-email">Email da organização</Label>
+            <Input
+              id="org-email"
+              name="email"
+              type="email"
+              placeholder="contato@assessoria.com"
             />
           </div>
           <div className="grid gap-2">

@@ -16,7 +16,9 @@ const assessorSchema = z.object({
 
 const schema = z.object({
   nome: z.string().trim().min(1).max(200),
+  razaoSocial: z.string().trim().max(200).optional().or(z.literal("")),
   cnpj: z.string().trim().regex(/^\d{14}$/, "CNPJ deve ter 14 dígitos").optional().or(z.literal("")),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
   shortId: z
     .string()
     .trim()
@@ -50,7 +52,9 @@ export async function createOrganizacaoAction(input: Input): Promise<Result> {
 
   const org = await createOrganizacao({
     nome: data.nome,
+    razaoSocial: data.razaoSocial || undefined,
     cnpj: data.cnpj || undefined,
+    email: data.email || undefined,
     shortId: data.shortId,
     whatsapp: data.whatsapp,
     plano: data.plano,
