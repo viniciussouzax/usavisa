@@ -82,7 +82,7 @@ export default function Home() {
           {/* Hero original — inline, simples */}
           <section className="space-y-8 text-left sm:space-y-10 sm:text-center">
             <h1 className={cn(titleFont.className, "mx-auto max-w-5xl text-balance text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl")}>
-              Escale sua assessoria de visto{" "}
+              Escale sua assessoria de visto americano{" "}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 1235 650"
@@ -144,7 +144,7 @@ export default function Home() {
                 <rect width="494" height="350" fill="#3C3B6E" />
                 <use href="#us-u" transform="translate(247,175) scale(650)" />
               </svg>{" "}
-              americano sem aumentar a operação
+              sem contratar mais pessoas
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl">
               Você cuida da análise e da estratégia. O resto roda no piloto

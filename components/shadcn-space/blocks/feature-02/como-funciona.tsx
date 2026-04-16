@@ -579,7 +579,7 @@ export default function ComoFuncionaFeature() {
             <div className="flex flex-col items-center gap-4">
               <div className="text-left sm:text-center">
                 <h2 className={cn(titleFont.className, "text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl")}>
-                  Piloto automático
+                  Ative o piloto automático
                 </h2>
                 <p className="mt-8 text-lg text-muted-foreground sm:mt-10 sm:text-xl">
                   Automatize a execução e foque no crescimento.
