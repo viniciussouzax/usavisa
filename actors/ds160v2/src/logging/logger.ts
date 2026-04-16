@@ -3,6 +3,7 @@
 
 import { Actor, log as apifyLog } from 'apify';
 import { classifyError, type CanonicalCause } from './causes.js';
+import { EngineError } from './errors.js';
 
 export interface FillLogRecord {
     kind: 'fill_log';
@@ -35,6 +36,8 @@ export interface ErrorLogRecord {
     severity: CanonicalCause['severity'];
     autoRetry: boolean;
     screenshotKey?: string;
+    htmlKey?: string;
+    artifactUrl?: string;
     createdAt: string;
 }
 
@@ -64,9 +67,20 @@ export async function recordFillLog(record: Omit<FillLogRecord, 'kind' | 'create
 
 export async function recordErrorLog(
     err: unknown,
-    ctx: { pageName?: string; fieldName?: string; retryNumber?: number; applicationId?: string; applicantName?: string; workerId?: string },
+    ctx: {
+        pageName?: string;
+        fieldName?: string;
+        retryNumber?: number;
+        applicationId?: string;
+        applicantName?: string;
+        workerId?: string;
+        screenshotKey?: string;
+        htmlKey?: string;
+        artifactUrl?: string;
+    },
 ): Promise<void> {
-    const cause = classifyError(err);
+    // EngineError already carries a classified cause — respect it.
+    const cause: CanonicalCause = err instanceof EngineError ? err.cause : classifyError(err);
     const base: Partial<ErrorLogRecord> = {
         kind: 'error_log',
         workerId: ctx.workerId ?? process.env.APIFY_ACTOR_RUN_ID ?? 'unknown',
@@ -79,6 +93,9 @@ export async function recordErrorLog(
         errorCause: cause.id,
         severity: cause.severity,
         autoRetry: cause.autoRetry,
+        screenshotKey: ctx.screenshotKey,
+        htmlKey: ctx.htmlKey,
+        artifactUrl: ctx.artifactUrl,
         createdAt: new Date().toISOString(),
     };
     if (err instanceof Error) {

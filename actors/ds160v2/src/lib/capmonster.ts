@@ -86,37 +86,76 @@ async function imageToText(key: string, opts: SolveImageToTextOptions & { preser
 }
 
 async function createTask(key: string, task: Record<string, unknown>): Promise<number> {
-    const res = await fetch(CREATE_TASK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientKey: key, task }),
-    });
-    const json = (await res.json()) as { errorId: number; taskId?: number; errorCode?: string; errorDescription?: string };
-    if (json.errorId !== 0 || typeof json.taskId !== 'number') {
-        throw new Error(`CapMonster createTask failed: ${json.errorCode ?? 'unknown'} — ${json.errorDescription ?? ''}`);
+    // Transient errors — the CapMonster endpoint occasionally serves an HTML
+    // Cloudflare/rate-limit page instead of JSON. Retry a few times before giving up.
+    const MAX_TRIES = 4;
+    let lastErr: unknown;
+    for (let i = 1; i <= MAX_TRIES; i += 1) {
+        try {
+            const res = await fetch(CREATE_TASK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ clientKey: key, task }),
+            });
+            const text = await res.text();
+            const trimmed = text.trim();
+            if (!trimmed.startsWith('{')) {
+                throw new Error(
+                    `CapMonster createTask: non-JSON response (status ${res.status}): ${trimmed.slice(0, 120)}`,
+                );
+            }
+            const json = JSON.parse(trimmed) as {
+                errorId: number;
+                taskId?: number;
+                errorCode?: string;
+                errorDescription?: string;
+            };
+            if (json.errorId !== 0 || typeof json.taskId !== 'number') {
+                throw new Error(
+                    `CapMonster createTask failed: ${json.errorCode ?? 'unknown'} — ${json.errorDescription ?? ''}`,
+                );
+            }
+            return json.taskId;
+        } catch (err) {
+            lastErr = err;
+            if (i < MAX_TRIES) await new Promise((r) => setTimeout(r, 500 * i));
+        }
     }
-    return json.taskId;
+    throw lastErr instanceof Error ? lastErr : new Error('CapMonster createTask: exhausted retries');
 }
 
 async function pollResult<T>(key: string, taskId: number, timeoutMs: number): Promise<T> {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
-        const res = await fetch(GET_RESULT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ clientKey: key, taskId }),
-        });
-        const json = (await res.json()) as {
-            errorId: number;
-            status?: 'ready' | 'processing';
-            solution?: T;
-            errorCode?: string;
-            errorDescription?: string;
-        };
-        if (json.errorId !== 0) {
-            throw new Error(`CapMonster getTaskResult failed: ${json.errorCode ?? 'unknown'} — ${json.errorDescription ?? ''}`);
+        try {
+            const res = await fetch(GET_RESULT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ clientKey: key, taskId }),
+            });
+            const text = await res.text();
+            const trimmed = text.trim();
+            if (!trimmed.startsWith('{')) {
+                // transient non-JSON — keep polling until deadline
+                await new Promise((r) => setTimeout(r, DEFAULT_POLL_INTERVAL_MS));
+                continue;
+            }
+            const json = JSON.parse(trimmed) as {
+                errorId: number;
+                status?: 'ready' | 'processing';
+                solution?: T;
+                errorCode?: string;
+                errorDescription?: string;
+            };
+            if (json.errorId !== 0) {
+                throw new Error(
+                    `CapMonster getTaskResult failed: ${json.errorCode ?? 'unknown'} — ${json.errorDescription ?? ''}`,
+                );
+            }
+            if (json.status === 'ready' && json.solution) return json.solution;
+        } catch (err) {
+            if (Date.now() + DEFAULT_POLL_INTERVAL_MS >= deadline) throw err;
         }
-        if (json.status === 'ready' && json.solution) return json.solution;
         await new Promise((r) => setTimeout(r, DEFAULT_POLL_INTERVAL_MS));
     }
     throw new Error('CapMonster pollResult: timed out');

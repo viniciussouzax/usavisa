@@ -6,6 +6,7 @@ import type { Page } from 'playwright';
 import { createCapmonster, type CapmonsterClient } from '../lib/capmonster.js';
 import { cssEscape } from '../schema/normalize.js';
 import { actAndWaitForPostback } from './postback.js';
+import { logInfo, logWarning } from '../logging/logger.js';
 
 const IMAGE_SELECTORS = [
     'img[id$="_CaptchaImage"]',
@@ -42,17 +43,30 @@ export async function solveBotDetectCaptcha(page: Page, ctx: CaptchaContext = {}
     const client = ctx.client ?? createCapmonster();
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
         const imageBase64 = await captureCaptchaImage(page);
-        if (!imageBase64) return false;
+        if (!imageBase64) {
+            logWarning(`captcha attempt ${attempt}: could not capture image`);
+            return false;
+        }
 
-        const text = await client.solveBotDetectImage({ body: imageBase64 });
+        let text: string;
+        try {
+            text = await client.solveBotDetectImage({ body: imageBase64 });
+            logInfo(`captcha attempt ${attempt}: solver returned "${text}"`);
+        } catch (err) {
+            logWarning(`captcha attempt ${attempt}: solver error — ${err instanceof Error ? err.message : String(err)}`);
+            await reloadCaptcha(page);
+            continue;
+        }
+
         const ok = await injectCaptchaAnswer(page, text);
-        if (!ok) return false;
+        if (!ok) {
+            logWarning(`captcha attempt ${attempt}: could not inject answer into input`);
+            return false;
+        }
 
-        const stillVisible = await isCaptchaVisible(page);
-        if (!stillVisible) return true;
-
-        // Still visible — server rejected. Reload and retry.
-        await reloadCaptcha(page);
+        // On landing page, visibility alone is not enough — CAPTCHA stays in DOM until
+        // Start is clicked. Leave rejection detection to the caller (classifyOutcome).
+        return true;
     }
     return false;
 }
@@ -80,7 +94,7 @@ async function injectCaptchaAnswer(page: Page, text: string): Promise<boolean> {
     return false;
 }
 
-async function reloadCaptcha(page: Page): Promise<void> {
+export async function reloadCaptcha(page: Page): Promise<void> {
     for (const sel of RELOAD_SELECTORS) {
         const el = await page.$(sel);
         if (!el) continue;

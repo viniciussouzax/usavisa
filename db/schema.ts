@@ -237,7 +237,7 @@ export const solicitante = sqliteTable(
       .references(() => solicitacao.uid, { onDelete: "cascade" }),
     ordem: integer("ordem").notNull(),
     nome: text("nome").notNull(),
-    parentesco: text("parentesco").notNull(), // "Titular" | "Cônjuge" | "Filho(a)" | "Outro"
+    parentesco: text("parentesco").notNull(), // "Principal" | "Cônjuge" | "Filho(a)" | "Outro"
     cpf: text("cpf").notNull().default(""),
     etapa: text("etapa").notNull().default("Triagem"),
     status: text("status").notNull().default("Todo"),

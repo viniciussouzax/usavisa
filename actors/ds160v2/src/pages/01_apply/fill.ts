@@ -10,7 +10,7 @@ import type { Page } from 'playwright';
 import { APPLY_SELECTORS, APPLY_URL } from './selectors.js';
 import { detectPageState } from '../../engine/state.js';
 import { actAndWaitForPostback } from '../../engine/postback.js';
-import { solveBotDetectCaptcha } from '../../engine/captcha.js';
+import { solveBotDetectCaptcha, reloadCaptcha } from '../../engine/captcha.js';
 import { hideTooltipOverlay, isModalBlocking } from '../../engine/tooltip.js';
 import { waitUntil } from '../../engine/waiters.js';
 import { EngineError } from '../../logging/errors.js';
@@ -35,23 +35,21 @@ export async function runApplyPage(ctx: PageContext): Promise<PageHandlerResult>
     await selectLocation(page, locationCode);
     await dismissPostSelectionModals(page);
 
-    const captchaOk = await solveBotDetectCaptcha(page);
-    if (!captchaOk) {
-        throw new EngineError('Gate A CAPTCHA not solved', {
-            cause: 'captcha_failed',
-            pageName: '01_apply',
-        });
-    }
-
-    await dismissPostSelectionModals(page);
-
     if (ctx.dryRun) {
+        // Dry-run still solves the CAPTCHA to validate the solver path, but stops
+        // before clicking Start.
+        const ok = await solveBotDetectCaptcha(page);
+        if (!ok) {
+            throw new EngineError('Gate A CAPTCHA not solved', {
+                cause: 'captcha_failed',
+                pageName: '01_apply',
+            });
+        }
         logInfo('01_apply dry_run — skipping Start click');
         return result({ start, navigated: false });
     }
 
-    await clickStart(page);
-    await classifyOutcome(page);
+    await attemptStartWithRetries(page);
 
     return result({ start, navigated: true });
 }
@@ -107,6 +105,7 @@ async function selectLocation(page: Page, desired: string): Promise<void> {
             await page.selectOption(APPLY_SELECTORS.locationSelect, { value: desired });
         });
         const current = await page.inputValue(APPLY_SELECTORS.locationSelect).catch(() => '');
+        logInfo(`01_apply location attempt ${attempt}: sent=${desired} current=${current} url=${page.url()}`);
         if (current === desired) return;
         // BC-1: silently reset — retry
     }
@@ -126,39 +125,89 @@ async function clickStart(page: Page): Promise<void> {
     await page.waitForLoadState('domcontentloaded', { timeout: 45_000 }).catch(() => {});
 }
 
+const MAX_CAPTCHA_RETRIES = Number(process.env.DS160_CAPTCHA_RETRIES ?? 3);
+
+// Each attempt: solve CAPTCHA → click Start → check URL.
+// If URL changes: success.
+// If URL stays and ValidationSummary has error text: classify and throw.
+// If URL stays and no error text: assume silent CAPTCHA rejection → reload and retry.
+async function attemptStartWithRetries(page: Page): Promise<void> {
+    for (let attempt = 1; attempt <= MAX_CAPTCHA_RETRIES; attempt += 1) {
+        const captchaOk = await solveBotDetectCaptcha(page);
+        if (!captchaOk) {
+            throw new EngineError('Gate A CAPTCHA not solved', {
+                cause: 'captcha_failed',
+                pageName: '01_apply',
+            });
+        }
+
+        await dismissPostSelectionModals(page);
+
+        const urlBefore = page.url();
+        logInfo(`01_apply attempt ${attempt}/${MAX_CAPTCHA_RETRIES} → clicking Start (url=${urlBefore})`);
+        await clickStart(page);
+        const urlAfter = page.url();
+        logInfo(`01_apply attempt ${attempt}/${MAX_CAPTCHA_RETRIES} ← after Start (url=${urlAfter})`);
+
+        if (urlAfter !== urlBefore && !urlAfter.includes('Default.aspx')) {
+            // URL changed → verify target and return
+            await classifyOutcome(page);
+            return;
+        }
+
+        // URL unchanged — check if server gave us an explicit error
+        const summaryText = await page
+            .locator(APPLY_SELECTORS.validationSummary)
+            .innerText()
+            .catch(() => '');
+
+        if (summaryText && summaryText.trim().length > 0) {
+            // Explicit error visible. If it's CAPTCHA, retry; else throw.
+            const lower = summaryText.toLowerCase();
+            const isCaptchaError = /characters.*do not match|captcha|verification/.test(lower);
+            if (isCaptchaError && attempt < MAX_CAPTCHA_RETRIES) {
+                logInfo(`01_apply attempt ${attempt}: CAPTCHA error — reloading and retrying`);
+                await reloadCaptcha(page);
+                continue;
+            }
+            if (/location.*not.*completed/.test(lower)) {
+                throw new EngineError('Location not confirmed by server', {
+                    cause: 'validation_error',
+                    pageName: '01_apply',
+                    fieldId: 'ddlLocation',
+                });
+            }
+            throw new EngineError(`Start click failed: ${summaryText}`, {
+                cause: isCaptchaError ? 'captcha_failed' : 'validation_error',
+                pageName: '01_apply',
+            });
+        }
+
+        // No explicit error, URL unchanged — silent rejection (usually CAPTCHA wrong).
+        if (attempt < MAX_CAPTCHA_RETRIES) {
+            logInfo(`01_apply attempt ${attempt}: silent rejection — reloading CAPTCHA`);
+            await reloadCaptcha(page);
+            continue;
+        }
+
+        throw new EngineError('Start click silently rejected — exhausted CAPTCHA retries', {
+            cause: 'captcha_failed',
+            pageName: '01_apply',
+        });
+    }
+}
+
 async function classifyOutcome(page: Page): Promise<void> {
     const url = page.url();
-
     if (/SessionTimedOut|TimedOut/i.test(url)) {
-        throw new EngineError('Session expired on landing', {
+        throw new EngineError('Session expired after Start click', {
             cause: 'session_expired',
             pageName: '01_apply',
         });
     }
     if (/SecureQuestion|ConfirmApplicationID|complete_/i.test(url)) return;
-
-    // Still on Default.aspx — classify validation summary
-    if (/Default\.aspx/i.test(url)) {
-        const summaryText = await page
-            .locator(APPLY_SELECTORS.validationSummary)
-            .innerText()
-            .catch(() => '');
-        if (/location.*not.*completed/i.test(summaryText)) {
-            throw new EngineError('Location not confirmed by server', {
-                cause: 'validation_error',
-                pageName: '01_apply',
-                fieldId: 'ddlLocation',
-            });
-        }
-        if (/characters.*do not match|captcha|verification/i.test(summaryText)) {
-            throw new EngineError('CAPTCHA rejected by server', {
-                cause: 'captcha_failed',
-                pageName: '01_apply',
-            });
-        }
-        throw new EngineError(`Start click failed: ${summaryText || 'unknown reason'}`, {
-            cause: 'validation_error',
-            pageName: '01_apply',
-        });
-    }
+    throw new EngineError(`Unexpected URL after Start: ${url}`, {
+        cause: 'unknown_page',
+        pageName: '01_apply',
+    });
 }

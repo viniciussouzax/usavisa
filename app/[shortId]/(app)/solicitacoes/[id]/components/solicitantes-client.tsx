@@ -1074,7 +1074,7 @@ function NewSolicitanteDrawer({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Titular">Titular</SelectItem>
+              <SelectItem value="Principal">Principal</SelectItem>
               <SelectItem value="Cônjuge">Cônjuge</SelectItem>
               <SelectItem value="Filho(a)">Filho(a)</SelectItem>
               <SelectItem value="Outro">Outro</SelectItem>

@@ -14,7 +14,7 @@ const schema = z.object({
   uid: z.string().min(1),
   nome: z.string().min(1).max(120).optional(),
   parentesco: z
-    .enum(["Titular", "Cônjuge", "Filho(a)", "Outro"] as const)
+    .enum(["Principal", "Cônjuge", "Filho(a)", "Outro"] as const)
     .optional(),
   cpf: z.string().max(20).optional(),
   etapa: z.enum(ETAPAS).optional(),

@@ -84,7 +84,7 @@ export type Solicitante = {
   id: string;               // uid
   ordem: number;
   nome: string;
-  parentesco: "Titular" | "Cônjuge" | "Filho(a)" | "Outro";
+  parentesco: "Principal" | "Cônjuge" | "Filho(a)" | "Outro";
   cpf: string;
   etapa: Etapa;
   status: Status;
@@ -102,8 +102,8 @@ export function buildWhatsAppUrl(whatsapp: string, message?: string): string {
 
 export function sortSolicitantes(list: Solicitante[]): Solicitante[] {
   return [...list].sort((a, b) => {
-    if (a.parentesco === "Titular" && b.parentesco !== "Titular") return -1;
-    if (b.parentesco === "Titular" && a.parentesco !== "Titular") return 1;
+    if (a.parentesco === "Principal" && b.parentesco !== "Principal") return -1;
+    if (b.parentesco === "Principal" && a.parentesco !== "Principal") return 1;
     return a.ordem - b.ordem;
   });
 }

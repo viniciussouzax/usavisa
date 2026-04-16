@@ -10,7 +10,7 @@ import { createSolicitante } from "@/shared/models/solicitante";
 const schema = z.object({
   solicitacaoUid: z.string().min(1),
   nome: z.string().trim().min(1, "Nome obrigatório").max(200),
-  parentesco: z.enum(["Titular", "Cônjuge", "Filho(a)", "Outro"]),
+  parentesco: z.enum(["Principal", "Cônjuge", "Filho(a)", "Outro"]),
   cpf: z.string().trim().max(20).optional().default(""),
 });
 

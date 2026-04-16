@@ -3,14 +3,17 @@
 // correct module by URL match and delegates execution.
 
 import { APPLY_MODULE } from './01_apply/index.js';
+import { RECOVERY_MODULE } from './02_recovery/index.js';
+import { SECURITY_QUESTION_MODULE } from './03_security_question/index.js';
+import { SIGN_MODULE } from './25_sign_and_submit/index.js';
 import { scaffoldedModule } from './_scaffold.js';
 import type { PageModule } from './types.js';
 import type { PageId } from '../schema/pageOrder.js';
 
 const ALL: PageModule[] = [
     APPLY_MODULE,
-    scaffoldedModule('02_recovery'),
-    scaffoldedModule('03_security_question'),
+    RECOVERY_MODULE,
+    SECURITY_QUESTION_MODULE,
     scaffoldedModule('04_personal1'),
     scaffoldedModule('05_personal2'),
     scaffoldedModule('06_travel'),
@@ -32,7 +35,7 @@ const ALL: PageModule[] = [
     scaffoldedModule('22_temporary_work'),
     scaffoldedModule('23_photo'),
     scaffoldedModule('24_review'),
-    scaffoldedModule('25_sign_and_submit'),
+    SIGN_MODULE,
     scaffoldedModule('26_application_dashboard'),
     scaffoldedModule('27_print_application'),
     scaffoldedModule('28_print_confirmation'),

@@ -2,6 +2,9 @@
 // Orchestrates: input parse → DoR gate → proxy setup → crawler with router → graceful shutdown.
 // See spec/actors/ceac_ds160/ for full architectural rules.
 
+// Load .env first (must be imported before anything else touches process.env)
+import './lib/env.js';
+
 import { PlaywrightCrawler } from '@crawlee/playwright';
 import { Actor } from 'apify';
 
@@ -47,11 +50,26 @@ onShutdown(async () => {
     });
 });
 
-// Proxy — residential is mandatory per actor-base.md §4. checkAccess validates up front.
-const proxyConfiguration = await Actor.createProxyConfiguration({
-    checkAccess: true,
-    groups: ['RESIDENTIAL'],
-});
+// Proxy — residential is mandatory in production (actor-base.md §4).
+// For local smoke tests the plan may not include RESIDENTIAL yet — allow override via env.
+//   DS160_PROXY_DISABLE=true  → run without proxy (browser opens direct, CEAC may block)
+//   DS160_PROXY_GROUPS=AUTO   → override groups (comma-separated)
+const proxyDisabled = process.env.DS160_PROXY_DISABLE === 'true';
+const proxyGroupsEnv = process.env.DS160_PROXY_GROUPS;
+const proxyGroups = proxyGroupsEnv
+    ? proxyGroupsEnv.split(',').map((g) => g.trim()).filter(Boolean)
+    : ['RESIDENTIAL'];
+const proxyConfiguration = proxyDisabled
+    ? undefined
+    : await Actor.createProxyConfiguration({
+        checkAccess: true,
+        groups: proxyGroups,
+    });
+logInfo(
+    proxyDisabled
+        ? 'Proxy DISABLED (DS160_PROXY_DISABLE=true)'
+        : `Proxy groups=${proxyGroups.join(',')}`,
+);
 
 const router = buildRouter({
     applicant: applicant!,
@@ -60,16 +78,23 @@ const router = buildRouter({
     workerId,
 });
 
+const debugMode = process.env.DS160_DEBUG === 'true';
+if (debugMode) {
+    logInfo('DEBUG mode ON — retries disabled, slow-motion 800ms, browser stays open on exit');
+}
+
 const crawler = new PlaywrightCrawler({
     proxyConfiguration,
     maxRequestsPerCrawl: 60,
-    requestHandlerTimeoutSecs: 300,
+    maxRequestRetries: debugMode ? 0 : 3,
+    requestHandlerTimeoutSecs: debugMode ? 600 : 300,
     navigationTimeoutSecs: 60,
     maxConcurrency: 1,
     requestHandler: router,
     launchContext: {
         launchOptions: {
             args: ['--disable-gpu'],
+            ...(debugMode ? { slowMo: 800 } : {}),
         },
     },
 });

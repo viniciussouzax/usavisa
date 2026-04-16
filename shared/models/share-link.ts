@@ -119,6 +119,40 @@ export async function getActiveTokenForSolicitacao(
   return row?.token;
 }
 
+/**
+ * Busca o token ativo mais recente de cada solicitação em uma org.
+ * Retorna mapa `solicitacaoUid → token`. Solicitações sem link ativo ficam
+ * ausentes do mapa.
+ */
+export async function getActiveTokensForOrg(
+  organizacaoUid: string,
+): Promise<Record<string, string>> {
+  const rows = await db
+    .select({
+      token: shareLink.token,
+      solicitacaoUid: shareLink.solicitacaoUid,
+      createdAt: shareLink.createdAt,
+    })
+    .from(shareLink)
+    .innerJoin(solicitacao, eq(solicitacao.uid, shareLink.solicitacaoUid))
+    .where(
+      and(
+        eq(solicitacao.organizacaoUid, organizacaoUid),
+        isNull(shareLink.revokedAt),
+      ),
+    )
+    .orderBy(desc(shareLink.createdAt));
+
+  const byUid: Record<string, string> = {};
+  for (const row of rows) {
+    // Mantém só o primeiro token por solicitação (o mais recente pela ordenação desc).
+    if (!byUid[row.solicitacaoUid]) {
+      byUid[row.solicitacaoUid] = row.token;
+    }
+  }
+  return byUid;
+}
+
 export type LatestShareLink = {
   token: string;
   revoked: boolean;

@@ -1,0 +1,30 @@
+{
+    "applicant": {
+        "_meta": {
+            "naFields": [],
+            "unknownFields": [],
+            "visitedSections": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15]
+        },
+        "location": { "location": "RCF" },
+        "personal1": {
+            "surname": "SOUZA SILVA",
+            "givenName": "JOSE CARLOS",
+            "fullNameNative": "JOSE CARLOS SOUZA SILVA",
+            "otherNamesUsed": "Y",
+            "telecode": "N",
+            "sex": "M",
+            "maritalStatus": "W",
+            "dob": { "day": "18", "month": "APR", "year": "1992" },
+            "cityOfBirth": "SAO PAULO",
+            "stateOfBirth": "SP",
+            "countryOfBirth": "BRAZIL"
+        },
+        "travel": {
+            "purposeOfTrip": "B1/B2",
+            "purposeCategory": "B",
+            "hasSpecificPlans": "Y",
+            "whoIsPaying": "O"
+        }
+    },
+    "mode": "real"
+}

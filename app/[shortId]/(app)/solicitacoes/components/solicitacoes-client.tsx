@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUpDown, Plus } from "lucide-react";
+import { ArrowUpDown, Check, Copy, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -51,12 +52,26 @@ type Props = {
   shortId: string;
   organizacaoUid: string;
   solicitacoes: Solicitacao[];
+  shareTokens: Record<string, string>;
 };
+
+// Em produção, vistoamericano.site é o domínio público do solicitante. Em dev
+// (localhost ou .local), o share link mora no mesmo host do dashboard — o
+// proxy.ts redireciona entre domínios só em produção.
+function getPublicBaseUrl(): string {
+  if (typeof window === "undefined") return "";
+  const host = window.location.host;
+  if (host.includes("vistoamericano")) return `${window.location.protocol}//${host}`;
+  if (host.includes("sends160")) return "https://vistoamericano.site";
+  // dev / preview: mesmo host
+  return `${window.location.protocol}//${host}`;
+}
 
 export function SolicitacoesClient({
   shortId,
   organizacaoUid,
   solicitacoes,
+  shareTokens,
 }: Props) {
   const router = useRouter();
   const [etapaFilter, setEtapaFilter] = useState<Etapa | typeof ALL_ETAPAS>(
@@ -155,7 +170,7 @@ export function SolicitacoesClient({
                 <TableHead className="w-16">—</TableHead>
                 <TableHead>Etapa</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>URL</TableHead>
+                <TableHead className="w-24 text-center">Link</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -198,7 +213,15 @@ export function SolicitacoesClient({
                     <TableCell>
                       <StatusBadge tone={statusTone(row.status)}>{row.status}</StatusBadge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{row.url || "—"}</TableCell>
+                    <TableCell
+                      className="text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <CopyLinkButton
+                        token={shareTokens[row.uid]}
+                        shortId={shortId}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -207,6 +230,48 @@ export function SolicitacoesClient({
         </div>
       </div>
     </>
+  );
+}
+
+function CopyLinkButton({
+  token,
+  shortId,
+}: {
+  token: string | undefined;
+  shortId: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  if (!token) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  async function handleCopy() {
+    const url = `${getPublicBaseUrl()}/${shortId}/${token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Link copiado");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Falha ao copiar link");
+    }
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleCopy}
+      className="h-7 w-7 p-0"
+      aria-label="Copiar link do solicitante"
+    >
+      {copied ? (
+        <Check className="h-3.5 w-3.5 text-emerald-600" />
+      ) : (
+        <Copy className="h-3.5 w-3.5" />
+      )}
+    </Button>
   );
 }
 
@@ -225,22 +290,26 @@ function NewSolicitacaoDrawer({
       <SheetHeader>
         <SheetTitle>Nova solicitação</SheetTitle>
         <SheetDescription>
-          Preencha os campos abaixo para criar uma nova solicitação.
+          Preencha os dados do caso e do solicitante principal.
         </SheetDescription>
       </SheetHeader>
 
       <form
-        className="grid gap-4 px-4"
+        className="grid gap-5 px-4"
         onSubmit={async (e) => {
           e.preventDefault();
           setPending(true);
           setError(null);
           const fd = new FormData(e.currentTarget);
+          const principalCpfRaw = String(fd.get("principalCpf") ?? "").trim();
           const res = await createSolicitacaoAction({
             organizacaoUid,
             nome: String(fd.get("nome") ?? "").trim(),
             nota: String(fd.get("nota") ?? "").trim(),
-            url: String(fd.get("url") ?? "").trim(),
+            principal: {
+              nome: String(fd.get("principalNome") ?? "").trim(),
+              cpf: principalCpfRaw.replace(/\D/g, ""),
+            },
           });
           setPending(false);
           if (res.error) {
@@ -250,18 +319,46 @@ function NewSolicitacaoDrawer({
           onSuccess();
         }}
       >
-        <div className="grid gap-2">
-          <Label htmlFor="nome">Nome</Label>
-          <Input id="nome" name="nome" placeholder="Família Silva" required />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="nota">Nota</Label>
-          <Textarea id="nota" name="nota" placeholder="Descrição curta" rows={4} />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="url">URL</Label>
-          <Input id="url" name="url" type="url" placeholder="https://..." />
-        </div>
+        <section className="grid gap-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Caso
+          </h3>
+          <div className="grid gap-2">
+            <Label htmlFor="nome">Nome</Label>
+            <Input id="nome" name="nome" required />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="nota">Nota</Label>
+            <Textarea id="nota" name="nota" placeholder="Descrição curta" rows={3} />
+          </div>
+        </section>
+
+        <section className="grid gap-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Solicitante principal
+          </h3>
+          <p className="-mt-1 text-xs text-muted-foreground">
+            Responsável pela solicitação. Outros solicitantes podem ser adicionados depois.
+          </p>
+          <div className="grid gap-2">
+            <Label htmlFor="principalNome">Nome completo</Label>
+            <Input id="principalNome" name="principalNome" required />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="principalCpf">CPF</Label>
+            <Input
+              id="principalCpf"
+              name="principalCpf"
+              placeholder="00000000000"
+              maxLength={11}
+              inputMode="numeric"
+              pattern="[0-9]*"
+            />
+            <p className="text-xs text-muted-foreground">
+              11 dígitos, sem pontos ou traços. Opcional.
+            </p>
+          </div>
+        </section>
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 

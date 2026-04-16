@@ -8,3 +8,6 @@ dist
 node_modules
 apify_storage
 storage
+.env
+.env.local
+.env.*.local

@@ -64,7 +64,7 @@ export async function createSolicitante(
 ): Promise<Solicitante> {
   const uid = crypto.randomUUID();
   const ordem =
-    input.parentesco === "Titular"
+    input.parentesco === "Principal"
       ? 1
       : await nextOrdemForSolicitacao(input.solicitacaoUid);
   await db.insert(solicitante).values({

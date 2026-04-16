@@ -97,7 +97,7 @@ async function seed() {
       uid: "01HX5APPBRUNO0000000000000",
       ordem: 1,
       nome: "Bruno Silva",
-      parentesco: "Titular" as const,
+      parentesco: "Principal" as const,
       cpf: "111.222.333-44",
       etapa: "Triagem",
       status: "Doing",

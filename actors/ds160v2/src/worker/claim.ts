@@ -18,10 +18,19 @@ export interface ClaimRecord {
     startedAt: string;
 }
 
-const CLAIM_STORE_KEY = 'ds160:claims';
+const CLAIM_STORE_PREFIX = 'claim-';
+
+// Apify Key-Value Store keys only allow [a-zA-Z0-9!-_.'()] — no colons, no slashes.
+function buildKey(ctx: ClaimContext): string {
+    const tail =
+        ctx.taskId ??
+        ctx.applicationId ??
+        `run-${process.env.APIFY_ACTOR_RUN_ID ?? Date.now()}`;
+    const safe = tail.replace(/[^a-zA-Z0-9!_.'()-]/g, '_').slice(0, 240);
+    return `${CLAIM_STORE_PREFIX}${safe}`;
+}
 
 export async function claimTask(ctx: ClaimContext): Promise<ClaimRecord> {
-    const key = ctx.taskId ?? ctx.applicationId ?? `run:${process.env.APIFY_ACTOR_RUN_ID ?? Date.now()}`;
     const record: ClaimRecord = {
         taskId: ctx.taskId,
         applicationId: ctx.applicationId,
@@ -29,7 +38,7 @@ export async function claimTask(ctx: ClaimContext): Promise<ClaimRecord> {
         workerId: process.env.APIFY_ACTOR_RUN_ID ?? `local-${process.pid}`,
         startedAt: new Date().toISOString(),
     };
-    await Actor.setValue(`${CLAIM_STORE_KEY}:${key}`, record);
+    await Actor.setValue(buildKey(ctx), record);
     return record;
 }
 
@@ -38,9 +47,9 @@ export async function releaseTask(
     finalStatus: FillStatus,
     extras: Record<string, unknown> = {},
 ): Promise<void> {
-    const key = ctx.taskId ?? ctx.applicationId ?? `run:${process.env.APIFY_ACTOR_RUN_ID ?? Date.now()}`;
-    const existing = (await Actor.getValue(`${CLAIM_STORE_KEY}:${key}`)) as ClaimRecord | null;
-    await Actor.setValue(`${CLAIM_STORE_KEY}:${key}`, {
+    const key = buildKey(ctx);
+    const existing = (await Actor.getValue(key)) as ClaimRecord | null;
+    await Actor.setValue(key, {
         ...(existing ?? {}),
         ...extras,
         status: finalStatus,
