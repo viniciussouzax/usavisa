@@ -21,18 +21,18 @@ export default async function AutomacaoConfigPage({
     if (!m?.ativo) notFound();
   }
 
-  const config = (org as unknown as { automacaoConfig?: Record<string, unknown> }).automacaoConfig ?? {};
+  const config = org.automacaoConfig;
 
   return (
     <AutomacaoConfigClient
       organizacaoUid={org.uid}
       initialConfig={{
-        maxRetries: (config.maxRetries as number) ?? 2,
-        cooldownRetry1Min: (config.cooldownRetry1Min as number) ?? 30,
-        cooldownRetry2Min: (config.cooldownRetry2Min as number) ?? 60,
-        timeoutPorRunMin: (config.timeoutPorRunMin as number) ?? 15,
-        custoMaxPorRunUsd: (config.custoMaxPorRunUsd as number) ?? 0.5,
-        retryAutoEmFalha: (config.retryAutoEmFalha as boolean) ?? true,
+        maxRetries: config.maxRetries ?? 2,
+        cooldownRetry1Min: config.cooldownRetry1Min ?? 30,
+        cooldownRetry2Min: config.cooldownRetry2Min ?? 60,
+        timeoutPorRunMin: config.timeoutPorRunMin ?? 15,
+        custoMaxPorRunUsd: config.custoMaxPorRunUsd ?? 0.5,
+        retryAutoEmFalha: config.retryAutoEmFalha ?? true,
       }}
     />
   );

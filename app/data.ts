@@ -61,6 +61,14 @@ export type Organizacao = {
   tagline: string | null;
   descricao: string | null;
   footerText: string | null;
+  automacaoConfig: {
+    maxRetries?: number;
+    cooldownRetry1Min?: number;
+    cooldownRetry2Min?: number;
+    timeoutPorRunMin?: number;
+    custoMaxPorRunUsd?: number;
+    retryAutoEmFalha?: boolean;
+  };
 };
 
 export type AssessorRole = "owner" | "admin" | "member";

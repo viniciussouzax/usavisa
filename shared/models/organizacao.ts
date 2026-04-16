@@ -28,6 +28,7 @@ function rowToOrganizacao(row: typeof organizacao.$inferSelect): Organizacao {
     tagline: row.tagline,
     descricao: row.descricao,
     footerText: row.footerText,
+    automacaoConfig: (row.automacaoConfig as Organizacao["automacaoConfig"]) ?? {},
   };
 }
 

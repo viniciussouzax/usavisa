@@ -9,10 +9,10 @@ import { db } from "@/db";
 import { solicitacao, solicitante } from "@/db/schema";
 import { getDs160Credentials } from "@/shared/integrations/ds160/get-credentials";
 import { reconcileApifyRun } from "@/shared/integrations/ds160/reconcile";
+import { getLatestActorRun } from "@/shared/models/actor-run";
 
 const schema = z.object({
   solicitanteUid: z.string().min(1),
-  runId: z.string().min(1),
 });
 
 type Result =
@@ -46,14 +46,19 @@ export async function reconcileRunAction(
     if (!m?.ativo) return { ok: false, error: "Sem permissao" };
   }
 
+  const run = await getLatestActorRun(parsed.data.solicitanteUid);
+  if (!run || !run.apifyRunId) {
+    return { ok: false, error: "Nenhuma run encontrada para este solicitante" };
+  }
+
   try {
     const creds = await getDs160Credentials({ stage: "ceac-ds160" });
     const result = await reconcileApifyRun(
       parsed.data.solicitanteUid,
-      parsed.data.runId,
+      run,
       creds.apify.apiToken,
     );
-    return { ok: true, imported: result.imported, runStatus: result.status };
+    return { ok: true, imported: result.imported, runStatus: result.runStatus };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro ao reconciliar";
     return { ok: false, error: message };
