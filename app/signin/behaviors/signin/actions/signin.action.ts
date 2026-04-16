@@ -5,7 +5,6 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { authErrorHandler, throwAuthError } from "@/lib/auth/error";
-import { getUser } from "@/lib/auth";
 import { resolveHomeUrl } from "@/lib/auth/home-url";
 
 interface ActionResult {
@@ -46,22 +45,28 @@ export async function signIn(
 
   const { email, password } = parsed.data;
 
+  let signedUserId: string | null = null;
+  let signedUserRole: string | null | undefined = null;
   try {
-    await auth.api.signInEmail({
+    const result = await auth.api.signInEmail({
       headers: await headers(),
       body: {
         email,
         password,
       },
     });
+    signedUserId = result?.user?.id ?? null;
+    // `role` vem da tabela user como coluna extra via plugin admin.
+    signedUserRole = (result?.user as { role?: string | null } | undefined)?.role ?? null;
   } catch (err) {
     const handled = authErrorHandler(err);
     return { error: handled.message };
   }
 
-  const { user } = await getUser();
-  const fallback = user
-    ? await resolveHomeUrl(user.id, user.role)
+  // Não dá pra usar getUser() aqui — o cookie de sessão foi setado na
+  // resposta mas ainda não está nos headers da request atual.
+  const fallback = signedUserId
+    ? await resolveHomeUrl(signedUserId, signedUserRole)
     : "/";
   redirect(redirectURL || fallback);
 }
