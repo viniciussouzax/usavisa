@@ -5,6 +5,7 @@ import {
   Plug,
   Building2,
   Briefcase,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 
@@ -68,6 +69,12 @@ export const masterNav: NavSection = {
       title: "Integrações",
       href: "/integracoes",
       icon: Plug,
+      requiredRole: "master",
+    },
+    {
+      title: "Administração",
+      href: "/admin",
+      icon: ShieldCheck,
       requiredRole: "master",
     },
   ],
