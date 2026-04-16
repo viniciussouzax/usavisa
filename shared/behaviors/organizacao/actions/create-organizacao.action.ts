@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { auth, getUser } from "@/lib/auth";
 import { isMaster } from "@/components/layout/nav-config";
 import { addAssessor } from "@/shared/models/assessor";
@@ -60,12 +61,22 @@ export async function createOrganizacaoAction(input: Input): Promise<Result> {
     plano: data.plano,
   });
 
+  // Cria usuários via admin.createUser — NÃO dispara auto-signin (ao contrário
+  // de signUpEmail, que sobrescreveria o cookie de sessão do master que tá
+  // executando essa action).
+  const requestHeaders = await headers();
   for (const a of data.assessores) {
     const result = await auth.api
-      .signUpEmail({
-        body: { email: a.email, password: a.senha, name: a.nome },
+      .createUser({
+        headers: requestHeaders,
+        body: {
+          email: a.email,
+          password: a.senha,
+          name: a.nome,
+          role: "user",
+        },
       })
-      .catch((err: unknown) => ({ error: err instanceof Error ? err.message : "signup failed" }));
+      .catch((err: unknown) => ({ error: err instanceof Error ? err.message : "create user failed" }));
     if ("error" in result) {
       return { error: `Falha ao criar ${a.email}: ${result.error}` };
     }
