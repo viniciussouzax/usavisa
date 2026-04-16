@@ -10,6 +10,9 @@ function rowToOrganizacao(row: typeof organizacao.$inferSelect): Organizacao {
     id: row.id,
     shortId: row.shortId,
     nome: row.nome,
+    razaoSocial: row.razaoSocial,
+    cnpj: row.cnpj,
+    email: row.email,
     whatsapp: row.whatsapp,
     logoLight: row.logoLight,
     logoDark: row.logoDark,
@@ -129,6 +132,9 @@ type UpdateOrganizacaoInput = Partial<
     Organizacao,
     | "shortId"
     | "nome"
+    | "razaoSocial"
+    | "cnpj"
+    | "email"
     | "whatsapp"
     | "logoLight"
     | "logoDark"

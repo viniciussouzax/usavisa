@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { loadGoogleFonts } from "@/lib/google-fonts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -736,6 +737,9 @@ function SettingsDrawer({
 }) {
   const router = useRouter();
   const [nome, setNome] = useState(organizacao.nome);
+  const [razaoSocial, setRazaoSocial] = useState(organizacao.razaoSocial ?? "");
+  const [cnpj, setCnpj] = useState(organizacao.cnpj ?? "");
+  const [email, setEmail] = useState(organizacao.email ?? "");
   const [shortId, setShortId] = useState(organizacao.shortId);
   const [whatsapp, setWhatsapp] = useState(organizacao.whatsapp);
   const [ativa, setAtiva] = useState(organizacao.ativa);
@@ -747,6 +751,9 @@ function SettingsDrawer({
       const payload: Parameters<typeof updateOrganizacaoAction>[0] = {
         uid: organizacao.uid,
         nome,
+        razaoSocial: razaoSocial || null,
+        cnpj: cnpj || null,
+        email: email || null,
         whatsapp,
         ativa,
       };
@@ -785,7 +792,51 @@ function SettingsDrawer({
             <Input
               id="org-nome"
               value={nome}
-              onChange={(e) => setNome(e.currentTarget.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                setNome(v);
+              }}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="org-razao-social">Razão social</Label>
+            <Input
+              id="org-razao-social"
+              value={razaoSocial}
+              onChange={(e) => {
+                const v = e.target.value;
+                setRazaoSocial(v);
+              }}
+              placeholder="Ex: VistoPro Consultoria LTDA"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="org-cnpj">CNPJ</Label>
+            <Input
+              id="org-cnpj"
+              value={cnpj}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, 14);
+                setCnpj(v);
+              }}
+              placeholder="00000000000000"
+              maxLength={14}
+            />
+            <p className="text-xs text-muted-foreground">
+              14 dígitos, sem pontos ou traços. Opcional.
+            </p>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="org-email">Email da organização</Label>
+            <Input
+              id="org-email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                const v = e.target.value;
+                setEmail(v);
+              }}
+              placeholder="contato@assessoria.com"
             />
           </div>
           <div className="grid gap-2">
@@ -798,12 +849,11 @@ function SettingsDrawer({
           </div>
           <div className="grid gap-2">
             <Label htmlFor="org-whatsapp">WhatsApp de suporte</Label>
-            <Input
+            <PhoneInput
               id="org-whatsapp"
               value={whatsapp}
-              onChange={(e) => setWhatsapp(e.currentTarget.value)}
-              placeholder="5511999999999"
-              pattern="[0-9]+"
+              onChange={setWhatsapp}
+              placeholder="11988945503"
             />
             <p className="text-xs text-muted-foreground">
               Usado no botão de suporte nas páginas públicas dos solicitantes.

@@ -15,6 +15,9 @@ const schema = z.object({
     .regex(/^[a-z0-9-]+$/)
     .optional(),
   nome: z.string().trim().min(1).max(200).optional(),
+  razaoSocial: z.string().trim().max(200).nullable().optional(),
+  cnpj: z.string().trim().regex(/^\d{14}$/).nullable().optional(),
+  email: z.string().email().nullable().optional(),
   whatsapp: z.string().trim().regex(/^\d+$/).optional(),
   logoLight: z.string().url().nullable().optional(),
   logoDark: z.string().url().nullable().optional(),

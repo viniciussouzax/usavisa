@@ -37,6 +37,9 @@ export type Organizacao = {
   id: number;
   shortId: string;
   nome: string;
+  razaoSocial: string | null;
+  cnpj: string | null;
+  email: string | null;
   whatsapp: string;
   logoLight: string | null;
   logoDark: string | null;
