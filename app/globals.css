@@ -220,3 +220,35 @@ html {
 [data-sonner-toast][data-type="warning"] [data-description] {
   color: var(--popover-foreground) !important;
 }
+
+/* react-phone-number-input — theme-aware overrides */
+.PhoneInput {
+  --PhoneInput-color--focus: var(--ring);
+  --PhoneInputCountrySelectArrow-color: var(--muted-foreground);
+  --PhoneInputCountrySelectArrow-opacity: 1;
+}
+
+.PhoneInputCountrySelect {
+  background: var(--popover) !important;
+  color: var(--popover-foreground) !important;
+}
+
+.PhoneInputCountrySelect option {
+  background: var(--popover);
+  color: var(--popover-foreground);
+}
+
+.PhoneInputCountrySelect option:checked,
+.PhoneInputCountrySelect option:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.PhoneInputInput {
+  background: transparent !important;
+  color: var(--foreground) !important;
+}
+
+.PhoneInputInput::placeholder {
+  color: var(--muted-foreground) !important;
+}
