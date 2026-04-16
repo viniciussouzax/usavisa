@@ -13,6 +13,7 @@ import { dispatchDs160Run } from "@/shared/integrations/ds160/dispatch";
 import { getDs160Credentials } from "@/shared/integrations/ds160/get-credentials";
 import { appendPipelineLog } from "@/shared/models/pipeline-log";
 import { updateSolicitante } from "@/shared/models/solicitante";
+import { createActorRun, updateActorRun } from "@/shared/models/actor-run";
 
 const schema = z.object({
   solicitanteUid: z.string().min(1),
@@ -74,6 +75,15 @@ export async function dispatchDs160RunAction(
       },
       { mode: parsed.data.mode },
     );
+    const actorRunId = await createActorRun({
+      solicitanteUid: parsed.data.solicitanteUid,
+      subEtapa: "ds160",
+      actorId: creds.apify.actorId,
+    });
+    await updateActorRun(actorRunId, {
+      status: "Executando",
+      apifyRunId: result.runId,
+    });
     await updateSolicitante(parsed.data.solicitanteUid, {
       etapa: "Automacao",
       status: "Executando",
@@ -86,7 +96,7 @@ export async function dispatchDs160RunAction(
       subEtapa: "ds160",
       tarefa: "ds160.01_apply",
       status: "Executando",
-      dados: { runId: result.runId, actorId: creds.apify.actorId },
+      dados: { runId: result.runId, actorRunId, actorId: creds.apify.actorId },
     });
     return { ok: true, error: null, runId: result.runId, consoleUrl: result.consoleUrl, status: result.status };
   } catch (err) {

@@ -18,7 +18,7 @@ export type DispatchCredentials = {
 export async function dispatchDs160Run(
   applicant: DS160Applicant,
   credentials: DispatchCredentials,
-  opts: { mode?: "real" | "dry_run" } = {},
+  opts: { mode?: "real" | "dry_run"; applicationId?: string } = {},
 ): Promise<DispatchResult> {
   const { apifyApiToken, apifyActorId, capmonsterApiKey } = credentials;
   if (!apifyApiToken) throw new Error("apifyApiToken ausente");
@@ -30,6 +30,7 @@ export async function dispatchDs160Run(
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
       applicant,
+      applicationId: opts.applicationId,
       mode: opts.mode ?? "real",
       credentials: {
         capmonsterApiKey,
