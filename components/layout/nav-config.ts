@@ -5,7 +5,8 @@ import {
   Plug,
   Building2,
   Briefcase,
-  ShieldCheck,
+  Database,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -72,9 +73,15 @@ export const masterNav: NavSection = {
       requiredRole: "master",
     },
     {
-      title: "Administração",
-      href: "/admin",
-      icon: ShieldCheck,
+      title: "Usuários",
+      href: "/admin/users",
+      icon: Users,
+      requiredRole: "master",
+    },
+    {
+      title: "Banco de dados",
+      href: "/admin/database",
+      icon: Database,
       requiredRole: "master",
     },
   ],
