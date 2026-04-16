@@ -27,6 +27,7 @@ const ORG_AUTH_SUB_SEGMENTS = new Set([
   "faturamento",
   "integracoes",
   "organizacao",
+  "configuracoes",
 ]);
 
 type DomainKind = "visto" | "sends" | "unknown";
