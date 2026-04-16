@@ -1,0 +1,16 @@
+{
+    "name": "ais-antecipacao",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "Antecipa agendamentos no AIS quando vaga abre",
+    "dependencies": {
+        "apify": "^3.7.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.0"
+    },
+    "scripts": {
+        "start": "node dist/main.js",
+        "build": "tsc"
+    }
+}

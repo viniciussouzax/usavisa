@@ -1,0 +1,11 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "ais-antecipacao",
+    "title": "AIS Antecipação",
+    "description": "Antecipa agendamentos no AIS quando vaga abre",
+    "version": "0.0",
+    "meta": { "templateId": "ts-start" },
+    "input": "./input_schema.json",
+    "dockerfile": "../Dockerfile"
+}

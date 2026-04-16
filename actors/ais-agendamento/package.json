@@ -1,0 +1,16 @@
+{
+    "name": "ais-agendamento",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "Agenda entrevistas CASV e consulares no AIS",
+    "dependencies": {
+        "apify": "^3.7.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.0"
+    },
+    "scripts": {
+        "start": "node dist/main.js",
+        "build": "tsc"
+    }
+}

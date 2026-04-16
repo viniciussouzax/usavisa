@@ -1,0 +1,16 @@
+{
+    "name": "ceac-status-check",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "Monitora status de aplicações DS-160 no site do CEAC",
+    "dependencies": {
+        "apify": "^3.7.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.0"
+    },
+    "scripts": {
+        "start": "node dist/main.js",
+        "build": "tsc"
+    }
+}

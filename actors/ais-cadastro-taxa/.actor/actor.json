@@ -1,0 +1,11 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "ais-cadastro-taxa",
+    "title": "AIS Cadastro e Taxa",
+    "description": "Cadastro e pagamento de taxa MRV no sistema AIS",
+    "version": "0.0",
+    "meta": { "templateId": "ts-start" },
+    "input": "./input_schema.json",
+    "dockerfile": "../Dockerfile"
+}

@@ -1,0 +1,16 @@
+{
+    "name": "ais-monitoramento",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "Monitora disponibilidade de horários no AIS",
+    "dependencies": {
+        "apify": "^3.7.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.0"
+    },
+    "scripts": {
+        "start": "node dist/main.js",
+        "build": "tsc"
+    }
+}
