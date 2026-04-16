@@ -212,6 +212,56 @@ export function OrganizacaoDetailClient({
       <div className="px-6 py-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-muted-foreground">
+            Informações cadastrais
+          </h2>
+        </div>
+
+        <div className="mb-8 overflow-hidden rounded-lg border border-border">
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="w-44">Nome fantasia</TableCell>
+                <TableCell>{organizacao.nome}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="w-44">Razão social</TableCell>
+                <TableCell className={organizacao.razaoSocial ? "" : "text-muted-foreground"}>
+                  {organizacao.razaoSocial ?? "Não informado"}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="w-44">CNPJ</TableCell>
+                <TableCell className={organizacao.cnpj ? "font-mono" : "text-muted-foreground"}>
+                  {organizacao.cnpj
+                    ? organizacao.cnpj.replace(
+                        /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+                        "$1.$2.$3/$4-$5",
+                      )
+                    : "Não informado"}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="w-44">Email</TableCell>
+                <TableCell className={organizacao.email ? "" : "text-muted-foreground"}>
+                  {organizacao.email ?? "Não informado"}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="w-44">WhatsApp</TableCell>
+                <TableCell className="font-mono">
+                  {organizacao.whatsapp ? `+${organizacao.whatsapp}` : "—"}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="w-44">Plano</TableCell>
+                <TableCell className="capitalize">{organizacao.plano}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-muted-foreground">
             White label
           </h2>
         </div>
