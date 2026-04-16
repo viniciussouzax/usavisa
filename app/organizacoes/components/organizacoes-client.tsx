@@ -207,7 +207,7 @@ function NewOrganizacaoDrawer({ onSuccess }: { onSuccess: () => void }) {
               nome: a.nome,
               email: a.email,
               senha: a.senha,
-              role: a.role,
+              role: a.role as "owner" | "member",
             })),
           });
           setPending(false);
