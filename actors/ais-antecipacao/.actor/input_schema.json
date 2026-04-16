@@ -1,6 +1,6 @@
 {
     "$schema": "https://apify.com/schemas/v1/input.ide.json",
-    "title": "AIS Antecipação Input",
+    "title": "AIS Antecipacao Input",
     "type": "object",
     "schemaVersion": 1,
     "properties": {}

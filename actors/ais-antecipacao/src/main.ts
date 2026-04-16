@@ -3,7 +3,7 @@ import { Actor } from 'apify';
 await Actor.init();
 
 const input = await Actor.getInput();
-console.log('AIS Antecipação — actor placeholder. Input received:', JSON.stringify(input).slice(0, 200));
-console.log('Implementação pendente.');
+console.log('AIS Antecipacao - actor placeholder. Input received:', JSON.stringify(input).slice(0, 200));
+console.log('Not implemented yet.');
 
-await Actor.exit({ statusMessage: 'AIS Antecipação — placeholder, não implementado ainda.' });
+await Actor.exit({ statusMessage: 'AIS Antecipacao - placeholder, not implemented yet.' });

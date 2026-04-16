@@ -2,7 +2,7 @@
     "name": "ais-agendamento",
     "version": "0.0.1",
     "type": "module",
-    "description": "Agenda entrevistas CASV e consulares no AIS",
+    "description": "Schedules CASV and consular interviews on AIS",
     "dependencies": {
         "apify": "^3.7.0"
     },

@@ -3,7 +3,7 @@
     "actorSpecification": 1,
     "name": "ais-monitoramento",
     "title": "AIS Monitoramento",
-    "description": "Monitora disponibilidade de horários no AIS",
+    "description": "Monitors appointment availability on AIS",
     "version": "0.0",
     "meta": { "templateId": "ts-start" },
     "input": "./input_schema.json",

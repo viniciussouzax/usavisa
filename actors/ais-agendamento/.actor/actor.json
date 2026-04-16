@@ -3,7 +3,7 @@
     "actorSpecification": 1,
     "name": "ais-agendamento",
     "title": "AIS Agendamento",
-    "description": "Agenda entrevistas CASV e consulares no AIS",
+    "description": "Schedules CASV and consular interviews on AIS",
     "version": "0.0",
     "meta": { "templateId": "ts-start" },
     "input": "./input_schema.json",

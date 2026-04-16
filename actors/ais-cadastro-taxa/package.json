@@ -2,7 +2,7 @@
     "name": "ais-cadastro-taxa",
     "version": "0.0.1",
     "type": "module",
-    "description": "Cadastro e pagamento de taxa MRV no sistema AIS",
+    "description": "Registration and MRV fee payment on AIS system",
     "dependencies": {
         "apify": "^3.7.0"
     },

@@ -2,7 +2,7 @@
     "name": "ais-antecipacao",
     "version": "0.0.1",
     "type": "module",
-    "description": "Antecipa agendamentos no AIS quando vaga abre",
+    "description": "Watches for earlier appointment slots on AIS",
     "dependencies": {
         "apify": "^3.7.0"
     },

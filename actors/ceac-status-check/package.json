@@ -2,7 +2,7 @@
     "name": "ceac-status-check",
     "version": "0.0.1",
     "type": "module",
-    "description": "Monitora status de aplicações DS-160 no site do CEAC",
+    "description": "Monitors DS-160 application status on CEAC website",
     "dependencies": {
         "apify": "^3.7.0"
     },

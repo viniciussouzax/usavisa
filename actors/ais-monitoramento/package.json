@@ -2,7 +2,7 @@
     "name": "ais-monitoramento",
     "version": "0.0.1",
     "type": "module",
-    "description": "Monitora disponibilidade de horários no AIS",
+    "description": "Monitors appointment availability on AIS",
     "dependencies": {
         "apify": "^3.7.0"
     },

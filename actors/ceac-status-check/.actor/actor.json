@@ -3,7 +3,7 @@
     "actorSpecification": 1,
     "name": "ceac-status-check",
     "title": "CEAC Status Check",
-    "description": "Monitora status de aplicações DS-160 no site do CEAC",
+    "description": "Monitors DS-160 application status on CEAC website",
     "version": "0.0",
     "meta": { "templateId": "ts-start" },
     "input": "./input_schema.json",
