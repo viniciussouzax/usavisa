@@ -141,9 +141,10 @@ export function IntegracaoDrawer({ integracao, scope, onClose }: Props) {
                 placeholder={field.placeholder}
                 autoComplete="off"
                 value={config[field.key] ?? ""}
-                onChange={(e) =>
-                  setConfig((c) => ({ ...c, [field.key]: e.currentTarget.value }))
-                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setConfig((c) => ({ ...c, [field.key]: val }));
+                }}
               />
               {field.hint && (
                 <p className="text-xs text-muted-foreground">{field.hint}</p>
