@@ -89,7 +89,7 @@ export async function finalizeFormAction(input: Input): Promise<Result> {
   await db
     .update(solicitante)
     .set({
-      etapa: "Analise",
+      etapa: "Análise",
       status: "Pendente",
       updatedAt: new Date(),
     })

@@ -351,7 +351,7 @@ export function SolicitanteListClient({
 
             {(() => {
               const visibleStatuses = etapaFilter === ALL_ETAPAS
-                ? (["Pendente", "Executando", "Concluido", "Erro", "Falha"] as const)
+                ? (["Pendente", "Executando", "Concluído", "Erro", "Falha"] as const)
                 : statusesForEtapa(etapaFilter as Etapa);
               return visibleStatuses.length > 0 ? (
                 <ToggleGroup
@@ -745,9 +745,9 @@ function SolicitanteDetailDrawer({
 
       <Tabs defaultValue="info" className="flex flex-1 flex-col overflow-hidden px-4">
         <TabsList className="w-fit">
-          <TabsTrigger value="info">Informacoes</TabsTrigger>
+          <TabsTrigger value="info">Informações</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-          <TabsTrigger value="form">Formulario</TabsTrigger>
+          <TabsTrigger value="form">Formulário</TabsTrigger>
           <TabsTrigger value="link">Link</TabsTrigger>
         </TabsList>
 
@@ -858,16 +858,16 @@ function SolicitanteDetailDrawer({
                   variant="destructive"
                   disabled={pending}
                   onClick={() => {
-                    if (!confirm("Abortar a execucao em andamento?")) return;
+                    if (!confirm("Abortar a execução em andamento?")) return;
                     startTransition(async () => {
                       const res = await abortRunAction({ solicitanteUid: solicitante.id });
                       if (!res.ok) { toast.error(res.error); return; }
-                      toast.success("Execucao abortada");
+                      toast.success("Execução abortada");
                       router.refresh();
                     });
                   }}
                 >
-                  Abortar execucao
+                  Abortar execução
                 </Button>
               </div>
             )}
@@ -875,13 +875,13 @@ function SolicitanteDetailDrawer({
             {solicitante.status === "Erro" && (
               <div className="pt-4 border-t">
                 <p className="mb-2 text-sm text-muted-foreground">
-                  Corrija os dados no formulario e clique para retomar.
+                  Corrija os dados no formulário e clique para retomar.
                 </p>
                 <Button
                   size="sm"
                   disabled={pending}
                   onClick={() => {
-                    if (!confirm("Continuar automacao com dados corrigidos?")) return;
+                    if (!confirm("Continuar automação com dados corrigidos?")) return;
                     startTransition(async () => {
                       const res = await continueAfterFixAction({ solicitanteUid: solicitante.id });
                       if (!res.ok) { toast.error(res.error); return; }
@@ -890,7 +890,7 @@ function SolicitanteDetailDrawer({
                     });
                   }}
                 >
-                  Continuar automacao
+                  Continuar automação
                 </Button>
               </div>
             )}

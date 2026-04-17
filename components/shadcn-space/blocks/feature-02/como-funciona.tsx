@@ -285,23 +285,23 @@ const humanSteps = [
     titulo: "Envie o link",
     etapa: "Triagem",
     descricao:
-      "Envie o link do caso e concentre toda a coleta em um unico lugar. A plataforma reune dados, aplica validacoes automaticas, padroniza respostas e organiza tudo no formato esperado para o processo consular.",
+      "Envie o link do caso e concentre toda a coleta em um único lugar. A plataforma reúne dados, aplica validações automáticas, padroniza respostas e organiza tudo no formato esperado para o processo consular.",
   },
   {
     numero: "2",
     icon: Search,
     titulo: "Analise o caso",
-    etapa: "Analise",
+    etapa: "Análise",
     descricao:
-      "Com os dados limpos e organizados, foque na analise tecnica. Revise o perfil, identifique riscos, ajuste informacoes e defina a melhor estrategia para conduzir a solicitacao.",
+      "Com os dados limpos e organizados, foque na análise técnica. Revise o perfil, identifique riscos, ajuste informações e defina a melhor estratégia para conduzir a solicitação.",
   },
   {
     numero: "3",
     icon: Zap,
     titulo: "Autorize",
-    etapa: "Automacao",
+    etapa: "Automação",
     descricao:
-      "Basta aprovar o caso para a plataforma assumir as proximas etapas. O que antes exigia tempo manual passa a ser executado com rapidez, consistencia e escala.",
+      "Basta aprovar o caso para a plataforma assumir as próximas etapas. O que antes exigia tempo manual passa a ser executado com rapidez, consistência e escala.",
   },
 ];
 
@@ -310,14 +310,14 @@ export default function ComoFuncionaFeature() {
     <section id="como-funciona" className="scroll-mt-20">
       <div className="flex flex-col gap-10 md:gap-14">
 
-        {/* BLOCO 1 — Humano: Voce faz so 3 coisas */}
+        {/* BLOCO 1 — Humano: Você faz só 3 coisas */}
         <div className="flex flex-col gap-8 sm:gap-10">
           <div className="text-left sm:text-center">
             <h2 className={cn(titleFont.className, "text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl")}>
-              Voce faz so 3 coisas
+              Você faz só 3 coisas
             </h2>
             <p className="mt-8 text-lg text-muted-foreground sm:mt-10 sm:text-xl">
-              As unicas etapas que exigem julgamento humano. Todo o resto e automacao.
+              As únicas etapas que exigem julgamento humano. Todo o resto é automação.
             </p>
           </div>
 
@@ -352,7 +352,7 @@ export default function ComoFuncionaFeature() {
               Ative o piloto automatico
             </h2>
             <p className="mt-8 text-lg text-muted-foreground sm:mt-10 sm:text-xl">
-              Automatize a execucao e foque no crescimento.
+              Automatize a execução e foque no crescimento.
             </p>
           </div>
           <ArrowDown className="h-5 w-5 text-muted-foreground" />

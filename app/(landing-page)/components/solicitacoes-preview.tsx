@@ -21,15 +21,15 @@ const mockRows: MockRow[] = [
   {
     id: "2049",
     nome: "Carlos Mendes",
-    nota: "Renovacao B1/B2",
-    etapa: "Analise",
-    status: "Concluido",
+    nota: "Renovação B1/B2",
+    etapa: "Análise",
+    status: "Concluído",
   },
   {
     id: "2048",
     nome: "Ana Souza",
-    nota: "Primeira solicitacao F1",
-    etapa: "Automacao",
+    nota: "Primeira solicitação F1",
+    etapa: "Automação",
     status: "Pendente",
   },
   {
@@ -48,7 +48,7 @@ const mockRows: MockRow[] = [
   },
 ];
 
-const statusPills: Status[] = ["Pendente", "Executando", "Concluido", "Erro"];
+const statusPills: Status[] = ["Pendente", "Executando", "Concluído", "Erro"];
 
 /**
  * Preview visual da tela de Solicitações — mockup estático no hero.

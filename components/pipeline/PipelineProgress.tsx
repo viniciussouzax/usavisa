@@ -14,7 +14,7 @@ type Props = {
 };
 
 function taskIcon(taskStatus: string) {
-  if (taskStatus === "Concluido") return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+  if (taskStatus === "Concluído") return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
   if (taskStatus === "Executando") return <Loader2 className="h-4 w-4 animate-spin text-sky-500" />;
   if (taskStatus === "Erro") return <AlertCircle className="h-4 w-4 text-red-500" />;
   if (taskStatus === "Falha") return <XCircle className="h-4 w-4 text-red-500" />;
@@ -30,7 +30,7 @@ function deriveSubEtapaStatus(
   if (!activeSubEtapa) return "Pendente";
   const activeIdx = SUB_ETAPAS.findIndex((s) => s.slug === activeSubEtapa);
   const thisIdx = SUB_ETAPAS.findIndex((s) => s.slug === slug);
-  if (thisIdx < activeIdx) return "Concluido";
+  if (thisIdx < activeIdx) return "Concluído";
   if (thisIdx > activeIdx) return "Pendente";
   return activeStatus;
 }
@@ -43,7 +43,7 @@ function deriveTaskStatus(
   activeStatus: string,
 ): string {
   const subStatus = deriveSubEtapaStatus(subEtapaSlug, activeSubEtapa, activeStatus);
-  if (subStatus === "Concluido") return "Concluido";
+  if (subStatus === "Concluído") return "Concluído";
   if (subStatus === "Pendente") return "Pendente";
   if (!activeTarefa) return "Pendente";
 
@@ -51,13 +51,13 @@ function deriveTaskStatus(
   if (!sub) return "Pendente";
   const activeTaskIdx = sub.tarefas.findIndex((t) => t.id === activeTarefa);
   const thisTaskIdx = sub.tarefas.findIndex((t) => t.id === taskId);
-  if (thisTaskIdx < activeTaskIdx) return "Concluido";
+  if (thisTaskIdx < activeTaskIdx) return "Concluído";
   if (thisTaskIdx > activeTaskIdx) return "Pendente";
   return activeStatus;
 }
 
 export function PipelineProgress({ etapa, subEtapa, tarefaAtual, status }: Props) {
-  if (etapa !== "Automacao") {
+  if (etapa !== "Automação") {
     return (
       <div className="flex items-center gap-3 rounded-lg border p-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
@@ -81,12 +81,12 @@ export function PipelineProgress({ etapa, subEtapa, tarefaAtual, status }: Props
               <span
                 className={cn(
                   "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold",
-                  subStatus === "Concluido" && "bg-emerald-100 text-emerald-700",
+                  subStatus === "Concluído" && "bg-emerald-100 text-emerald-700",
                   subStatus === "Executando" && "bg-sky-100 text-sky-700",
-                  subStatus !== "Concluido" && subStatus !== "Executando" && "bg-muted text-muted-foreground",
+                  subStatus !== "Concluído" && subStatus !== "Executando" && "bg-muted text-muted-foreground",
                 )}
               >
-                {subStatus === "Concluido" ? <CheckCircle2 className="h-4 w-4" /> : sub.letra}
+                {subStatus === "Concluído" ? <CheckCircle2 className="h-4 w-4" /> : sub.letra}
               </span>
               <h4 className="flex-1 text-sm font-semibold">{sub.titulo}</h4>
               <StatusBadge tone={statusTone(subStatus as Status)}>
@@ -110,7 +110,7 @@ export function PipelineProgress({ etapa, subEtapa, tarefaAtual, status }: Props
                       <span
                         className={cn(
                           "text-sm",
-                          tStatus === "Concluido" && "text-muted-foreground",
+                          tStatus === "Concluído" && "text-muted-foreground",
                           tStatus === "Executando" && "font-medium text-foreground",
                           tStatus === "Pendente" && "text-muted-foreground/60",
                           (tStatus === "Erro" || tStatus === "Falha") && "text-red-600 font-medium",

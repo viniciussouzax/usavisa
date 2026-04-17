@@ -93,7 +93,7 @@ export async function reconcileApifyRun(
         evento: "pagina.concluida",
         subEtapa: run.subEtapa,
         tarefa: fill.pageName,
-        status: "Concluido",
+        status: "Concluído",
         duracaoMs: fill.durationMs,
         dados: {
           fieldsFilled: fill.fieldsFilled,
@@ -157,7 +157,7 @@ export async function reconcileApifyRun(
     solicitanteUid,
     evento: succeeded ? "automacao.concluida" : "automacao.erro",
     subEtapa: run.subEtapa,
-    status: succeeded ? "Concluido" : "Erro",
+    status: succeeded ? "Concluído" : "Erro",
     duracaoMs: totalDurationMs || runData.stats?.durationMillis,
     dados: {
       runId,
@@ -170,7 +170,7 @@ export async function reconcileApifyRun(
   });
 
   await updateActorRun(run.id, {
-    status: succeeded ? "Concluido" : (lastErrorSeverity === "data" ? "Erro" : "Falha"),
+    status: succeeded ? "Concluído" : (lastErrorSeverity === "data" ? "Erro" : "Falha"),
     applicationId: applicationId ?? run.applicationId,
     custoUsd,
     duracaoMs: totalDurationMs || runData.stats?.durationMillis,
@@ -180,7 +180,7 @@ export async function reconcileApifyRun(
 
   if (succeeded) {
     await updateSolicitante(solicitanteUid, {
-      status: "Concluido",
+      status: "Concluído",
       tarefaAtual: null,
     });
     return { imported, runStatus: runData.status, nextAction: "cascata" };

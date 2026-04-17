@@ -85,7 +85,7 @@ export async function dispatchDs160RunAction(
       apifyRunId: result.runId,
     });
     await updateSolicitante(parsed.data.solicitanteUid, {
-      etapa: "Automacao",
+      etapa: "Automação",
       status: "Executando",
       subEtapa: "ds160",
       tarefaAtual: "ds160.01_apply",

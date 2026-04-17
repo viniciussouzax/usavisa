@@ -4,7 +4,7 @@ export const APIFY_STAGES = [
   { slug: "ais-cadastro-taxa", label: "AIS - Cadastro e Taxa" },
   { slug: "ais-monitoramento", label: "AIS - Monitoramento" },
   { slug: "ais-agendamento", label: "AIS - Agendamento" },
-  { slug: "ais-antecipacao", label: "AIS - Antecipacao" },
+  { slug: "ais-antecipacao", label: "AIS - Antecipação" },
 ] as const;
 
 export type ApifyStageSlug = (typeof APIFY_STAGES)[number]["slug"];

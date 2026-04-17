@@ -33,7 +33,7 @@ export function AutomacaoConfigClient({ initialConfig }: Props) {
         toast.error(res.error);
         return;
       }
-      toast.success("Configuracoes salvas");
+      toast.success("Configurações salvas");
     });
   }
 
@@ -44,7 +44,7 @@ export function AutomacaoConfigClient({ initialConfig }: Props) {
   return (
     <>
       <PageHeader
-        title="Automacao"
+        title="Automação"
         description="Configure o comportamento dos actors (retry, timeout, limites de custo)"
       />
 
@@ -52,7 +52,7 @@ export function AutomacaoConfigClient({ initialConfig }: Props) {
         <div className="grid gap-6">
 
           <div className="grid gap-2">
-            <Label>Retries automaticos (alem da tentativa original)</Label>
+            <Label>Retries automáticos (além da tentativa original)</Label>
             <Input
               type="number"
               min={0}
@@ -60,7 +60,7 @@ export function AutomacaoConfigClient({ initialConfig }: Props) {
               value={config.maxRetries}
               onChange={(e) => setField("maxRetries", Number(e.target.value))}
             />
-            <p className="text-xs text-muted-foreground">0 = sem retry, so a tentativa original. Padrao: 2</p>
+            <p className="text-xs text-muted-foreground">0 = sem retry, só a tentativa original. Padrão: 2</p>
           </div>
 
           <div className="grid gap-2">
@@ -94,11 +94,11 @@ export function AutomacaoConfigClient({ initialConfig }: Props) {
               value={config.timeoutPorRunMin}
               onChange={(e) => setField("timeoutPorRunMin", Number(e.target.value))}
             />
-            <p className="text-xs text-muted-foreground">Se a run exceder esse tempo, e abortada. Padrao: 15</p>
+            <p className="text-xs text-muted-foreground">Se a run exceder esse tempo, é abortada. Padrão: 15</p>
           </div>
 
           <div className="grid gap-2">
-            <Label>Custo maximo por run (USD)</Label>
+            <Label>Custo máximo por run (USD)</Label>
             <Input
               type="number"
               min={0.01}
@@ -107,13 +107,13 @@ export function AutomacaoConfigClient({ initialConfig }: Props) {
               value={config.custoMaxPorRunUsd}
               onChange={(e) => setField("custoMaxPorRunUsd", Number(e.target.value))}
             />
-            <p className="text-xs text-muted-foreground">Safety net — aborta se exceder. Padrao: $0.50</p>
+            <p className="text-xs text-muted-foreground">Safety net — aborta se exceder. Padrão: $0.50</p>
           </div>
 
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div>
-              <Label>Retry automatico em falha tecnica</Label>
-              <p className="text-xs text-muted-foreground">Desligado = todo retry e manual (assessor clica "Continuar")</p>
+              <Label>Retry automático em falha técnica</Label>
+              <p className="text-xs text-muted-foreground">Desligado = todo retry é manual (assessor clica "Continuar")</p>
             </div>
             <Switch
               checked={config.retryAutoEmFalha}
@@ -122,7 +122,7 @@ export function AutomacaoConfigClient({ initialConfig }: Props) {
           </div>
 
           <Button onClick={save} disabled={pending}>
-            Salvar configuracoes
+            Salvar configurações
           </Button>
         </div>
       </div>

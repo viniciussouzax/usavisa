@@ -51,10 +51,10 @@ export type NavSection = {
 
 export const primaryNav: NavSection = {
   items: [
-    { title: "Solicitacoes", href: "/:orgSelf/solicitacoes", icon: Inbox },
-    { title: "Execucoes", href: "/:orgSelf/execucoes", icon: Play },
+    { title: "Solicitações", href: "/:orgSelf/solicitacoes", icon: Inbox },
+    { title: "Execuções", href: "/:orgSelf/execucoes", icon: Play },
     { title: "Faturamento", href: "/:orgSelf/faturamento", icon: Receipt },
-    { title: "Organizacao", href: "/:orgSelf/organizacao", icon: Building2 },
+    { title: "Organização", href: "/:orgSelf/organizacao", icon: Building2 },
   ],
 };
 
@@ -80,7 +80,7 @@ export const masterNav: NavSection = {
       requiredRole: "master",
     },
     {
-      title: "Automacao",
+      title: "Automação",
       href: "/admin/automacao",
       icon: Settings2,
       requiredRole: "master",

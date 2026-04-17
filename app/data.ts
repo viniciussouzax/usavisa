@@ -126,8 +126,8 @@ export function sortSolicitantes(list: Solicitante[]): Solicitante[] {
 
 export function etapaTone(etapa: Etapa) {
   if (etapa === "Triagem") return "warning" as const;
-  if (etapa === "Analise") return "info" as const;
-  if (etapa === "Automacao") return "info" as const;
+  if (etapa === "Análise") return "info" as const;
+  if (etapa === "Automação") return "info" as const;
   if (etapa === "Entrevista") return "warning" as const;
   if (etapa === "Resultado") return "success" as const;
   if (etapa === "Arquivado") return "neutral" as const;
@@ -137,7 +137,7 @@ export function etapaTone(etapa: Etapa) {
 export function statusTone(status: Status) {
   if (status === "Pendente") return "neutral" as const;
   if (status === "Executando") return "info" as const;
-  if (status === "Concluido") return "success" as const;
+  if (status === "Concluído") return "success" as const;
   if (status === "Erro") return "danger" as const;
   if (status === "Falha") return "danger" as const;
   if (status === "Espera") return "warning" as const;

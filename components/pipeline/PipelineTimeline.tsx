@@ -19,19 +19,19 @@ function eventIcon(evento: string, status?: string | null) {
 
 function eventLabel(log: PipelineLogEntry): string {
   const dados = log.dados as Record<string, unknown> | null;
-  if (log.evento === "triagem.concluido") return "Triagem concluida — formulario finalizado";
-  if (log.evento === "analise.aprovada") return "Analise aprovada — automacao autorizada";
+  if (log.evento === "triagem.concluido") return "Triagem concluída — formulário finalizado";
+  if (log.evento === "analise.aprovada") return "Análise aprovada — automação autorizada";
   if (log.evento === "etapa.mudou") {
     const de = (dados as Record<string, string>)?.etapa ?? (dados as Record<string, string>)?.de ?? "?";
     const para = (dados as Record<string, string>)?.status ?? (dados as Record<string, string>)?.para ?? "?";
     return `Etapa/status atualizado (${de} → ${para})`;
   }
   if (log.evento === "automacao.iniciada") {
-    return `Automacao DS-160 iniciada`;
+    return `Automação DS-160 iniciada`;
   }
   if (log.evento === "automacao.concluida") {
     const appId = (dados as Record<string, string>)?.applicationId;
-    return `DS-160 concluido${appId ? ` — ${appId}` : ""}`;
+    return `DS-160 concluído${appId ? ` — ${appId}` : ""}`;
   }
   if (log.evento === "automacao.erro") {
     const msg = (dados as Record<string, string>)?.mensagem ?? "erro desconhecido";
@@ -60,8 +60,8 @@ function relativeTime(date: Date | null): string {
   const now = Date.now();
   const diff = now - date.getTime();
   if (diff < 60_000) return "agora";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}min atras`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h atras`;
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}min atrás`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h atrás`;
   return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 

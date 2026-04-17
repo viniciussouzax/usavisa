@@ -107,7 +107,7 @@ export async function orchestrate(): Promise<OrchestrateResult> {
           await appendPipelineLog({
             solicitanteUid: run.solicitanteUid,
             evento: "etapa.mudou",
-            dados: { de: "Automacao", para: "Entrevista" },
+            dados: { de: "Automação", para: "Entrevista" },
           });
         }
       }
