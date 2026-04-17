@@ -55,7 +55,6 @@ export const primaryNav: NavSection = {
     { title: "Execucoes", href: "/:orgSelf/execucoes", icon: Play },
     { title: "Faturamento", href: "/:orgSelf/faturamento", icon: Receipt },
     { title: "Organizacao", href: "/:orgSelf/organizacao", icon: Building2 },
-    { title: "Automacao", href: "/:orgSelf/configuracoes/automacao", icon: Settings2 },
   ],
 };
 
@@ -78,6 +77,12 @@ export const masterNav: NavSection = {
       title: "Usuários",
       href: "/admin/users",
       icon: Users,
+      requiredRole: "master",
+    },
+    {
+      title: "Automacao",
+      href: "/admin/automacao",
+      icon: Settings2,
       requiredRole: "master",
     },
     {

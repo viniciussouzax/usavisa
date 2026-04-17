@@ -195,18 +195,6 @@ export function OrganizacaoDetailClient({
             >
               Pagina publica
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              nativeButton={false}
-              render={
-                <Link
-                  href={`/${organizacao.shortId}/configuracoes/automacao`}
-                />
-              }
-            >
-              Automacao
-            </Button>
             <Sheet open={addOpen} onOpenChange={setAddOpen}>
               <SheetTrigger render={<Button size="sm" />}>
                 <UserPlus className="mr-1 h-4 w-4" />

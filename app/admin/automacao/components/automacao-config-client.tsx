@@ -19,17 +19,16 @@ type Config = {
 };
 
 type Props = {
-  organizacaoUid: string;
   initialConfig: Config;
 };
 
-export function AutomacaoConfigClient({ organizacaoUid, initialConfig }: Props) {
+export function AutomacaoConfigClient({ initialConfig }: Props) {
   const [config, setConfig] = useState<Config>(initialConfig);
   const [pending, startTransition] = useTransition();
 
   function save() {
     startTransition(async () => {
-      const res = await updateAutomacaoConfigAction({ organizacaoUid, config });
+      const res = await updateAutomacaoConfigAction(config);
       if (res.error) {
         toast.error(res.error);
         return;
