@@ -81,6 +81,14 @@ import { updateSolicitacaoAction } from "@/shared/behaviors/solicitacao/actions/
 import { archiveSolicitacaoAction } from "@/shared/behaviors/solicitacao/actions/archive-solicitacao.action";
 import { useRouter } from "next/navigation";
 
+function getPublicBaseUrl(): string {
+  if (typeof window === "undefined") return "";
+  const host = window.location.host;
+  if (host.includes("vistoamericano")) return `${window.location.protocol}//${host}`;
+  if (host.includes("sends160")) return "https://vistoamericano.site";
+  return `${window.location.protocol}//${host}`;
+}
+
 type ApplicantLinkMap = Record<string, LatestSolicitanteShareLink | null>;
 type FormDataMap = Record<string, FormDataSnapshot>;
 type PipelineLogsMap = Record<string, PipelineLogEntry[]>;
@@ -133,7 +141,7 @@ export function SolicitanteListClient({
         toast.error(res.error ?? "Erro ao gerar link");
         return;
       }
-      const url = `${window.location.origin}/${shortId}/${res.token}`;
+      const url = `${getPublicBaseUrl()}/${shortId}/${res.token}`;
       await navigator.clipboard.writeText(url);
       setApplicantLinks((m) => ({
         ...m,
@@ -154,7 +162,7 @@ export function SolicitanteListClient({
 
   const shareUrl =
     shareLink && typeof window !== "undefined"
-      ? `${window.location.origin}/${shortId}/${shareLink.token}`
+      ? `${getPublicBaseUrl()}/${shortId}/${shareLink.token}`
       : shareLink
         ? `/${shortId}/${shareLink.token}`
         : null;
@@ -940,7 +948,7 @@ function ApplicantLinkSection({
 
   const url =
     link && typeof window !== "undefined"
-      ? `${window.location.origin}/${shortId}/${link.token}`
+      ? `${getPublicBaseUrl()}/${shortId}/${link.token}`
       : link
         ? `/${shortId}/${link.token}`
         : null;
