@@ -1098,109 +1098,103 @@ function MarcaDrawer({
   onClose: () => void;
 }) {
   const router = useRouter();
-  const [logoLight, setLogoLight] = useState(organizacao.logoLight ?? "");
-  const [logoDark, setLogoDark] = useState(organizacao.logoDark ?? "");
-  const [iconLight, setIconLight] = useState(organizacao.iconLight ?? "");
-  const [iconDark, setIconDark] = useState(organizacao.iconDark ?? "");
+  const [logoUrl, setLogoUrl] = useState(organizacao.logoDark ?? organizacao.logoLight ?? "");
+  const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Arquivo excede 2 MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(
+        `/api/org-logo-upload?organizacaoUid=${organizacao.uid}&field=logoDark`,
+        { method: "POST", body: form },
+      );
+      const json = await res.json();
+      if (!res.ok) { toast.error(json.error ?? "Erro no upload"); return; }
+      setLogoUrl(json.url);
+      toast.success("Logo enviado");
+      router.refresh();
+    } catch { toast.error("Erro ao enviar logo"); } finally { setUploading(false); }
+  }
+
+  function removeLogo() {
     startTransition(async () => {
       const res = await updateOrganizacaoAction({
         uid: organizacao.uid,
-        logoLight: logoLight.trim() || null,
-        logoDark: logoDark.trim() || null,
-        iconLight: iconLight.trim() || null,
-        iconDark: iconDark.trim() || null,
+        logoLight: null,
+        logoDark: null,
       });
-      if (res.error) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success("Marca atualizada");
+      if (res.error) { toast.error(res.error); return; }
+      setLogoUrl("");
+      toast.success("Logo removido");
       router.refresh();
-      onClose();
     });
   }
 
   return (
     <SheetContent side="right">
       <SheetHeader>
-        <SheetTitle>Marca</SheetTitle>
+        <SheetTitle>Logo</SheetTitle>
         <SheetDescription>
-          Logo e ícone em versões clara e escura.
+          O logo da sua assessoria exibido nas páginas do solicitante.
+          Formatos aceitos: JPG, PNG, SVG ou WebP (máx. 2 MB).
         </SheetDescription>
       </SheetHeader>
 
-      <form className="flex flex-col gap-5 overflow-y-auto px-4" onSubmit={submit}>
-        <section className="grid gap-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Logo
-          </h3>
-          <div className="grid gap-2">
-            <Label htmlFor="logo-light">Versão clara (URL)</Label>
-            <Input
-              id="logo-light"
-              type="url"
-              value={logoLight}
-              onChange={(e) => setLogoLight(e.currentTarget.value)}
-              placeholder="https://..."
+      <div className="flex flex-col gap-5 px-4">
+        {logoUrl && (
+          <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-muted/30 p-6">
+            <img
+              src={logoUrl}
+              alt="Logo atual"
+              className="max-h-20 max-w-full object-contain"
             />
-            <p className="text-xs text-muted-foreground">
-              Usada em fundo escuro (tema dark).
-            </p>
+            <p className="text-xs text-muted-foreground">Logo atual</p>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="logo-dark">Versão escura (URL)</Label>
-            <Input
-              id="logo-dark"
-              type="url"
-              value={logoDark}
-              onChange={(e) => setLogoDark(e.currentTarget.value)}
-              placeholder="https://..."
-            />
-            <p className="text-xs text-muted-foreground">
-              Usada em fundo claro (tema light).
-            </p>
-          </div>
-        </section>
+        )}
 
-        <section className="grid gap-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Ícone
-          </h3>
-          <div className="grid gap-2">
-            <Label htmlFor="icon-light">Versão clara (URL)</Label>
-            <Input
-              id="icon-light"
-              type="url"
-              value={iconLight}
-              onChange={(e) => setIconLight(e.currentTarget.value)}
-              placeholder="https://..."
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="icon-dark">Versão escura (URL)</Label>
-            <Input
-              id="icon-dark"
-              type="url"
-              value={iconDark}
-              onChange={(e) => setIconDark(e.currentTarget.value)}
-              placeholder="https://..."
-            />
-          </div>
-        </section>
+        <div className="grid gap-2">
+          <Label htmlFor="logo-upload">
+            {logoUrl ? "Trocar logo" : "Enviar logo"}
+          </Label>
+          <Input
+            id="logo-upload"
+            type="file"
+            accept="image/jpeg,image/png,image/svg+xml,image/webp"
+            onChange={handleFileChange}
+            disabled={uploading}
+            className="cursor-pointer"
+          />
+          {uploading && (
+            <p className="text-xs text-muted-foreground">Enviando...</p>
+          )}
+        </div>
 
         <SheetFooter>
+          {logoUrl && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={removeLogo}
+              disabled={pending || uploading}
+              className="text-destructive"
+            >
+              Remover logo
+            </Button>
+          )}
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={pending}>
-            Salvar
+            Fechar
           </Button>
         </SheetFooter>
-      </form>
+      </div>
     </SheetContent>
   );
 }
