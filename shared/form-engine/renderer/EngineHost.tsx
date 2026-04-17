@@ -85,7 +85,7 @@ function SaveIndicator({
   if (state === "idle") return null;
   if (state === "saving") {
     return (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-3 w-3 animate-spin" />
         Salvando...
       </div>
@@ -93,14 +93,14 @@ function SaveIndicator({
   }
   if (state === "saved") {
     return (
-      <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+      <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
         <Check className="h-3 w-3" />
         Salvo
       </div>
     );
   }
   return (
-    <div className="text-xs text-destructive">
+    <div className="text-sm text-destructive">
       Falha ao salvar: {error ?? "erro desconhecido"}
     </div>
   );

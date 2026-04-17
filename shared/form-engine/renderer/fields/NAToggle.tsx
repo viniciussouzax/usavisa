@@ -25,7 +25,7 @@ export function NAToggle({
   return (
     <div className="flex flex-wrap gap-4 pt-1">
       {allowNA && (
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
           <Checkbox
             checked={naChecked}
             onCheckedChange={(checked) => {
@@ -38,7 +38,7 @@ export function NAToggle({
         </label>
       )}
       {allowUnknown && (
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
           <Checkbox
             checked={unknownChecked}
             onCheckedChange={(checked) => {

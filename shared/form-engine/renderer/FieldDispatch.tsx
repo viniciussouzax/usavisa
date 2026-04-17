@@ -104,7 +104,7 @@ export function FieldDispatch({
     case "file":
       if (!uploadContext) {
         return (
-          <div className="rounded-md border border-dashed border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          <div className="rounded-md border border-dashed border-amber-500/40 bg-amber-500/5 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
             Upload de arquivo indisponível neste contexto.
           </div>
         );

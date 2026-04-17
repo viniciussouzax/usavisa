@@ -37,7 +37,7 @@ export default async function OrgSignInPage({
               <span className="truncate text-sm font-semibold">
                 {organizacao.nome}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 Área do assessor
               </span>
             </div>
@@ -74,7 +74,7 @@ export default async function OrgSignInPage({
               />
             </div>
 
-            <p className="mt-6 text-center text-xs text-muted-foreground">
+            <p className="mt-6 text-center text-sm text-muted-foreground">
               Não consegue acessar? Entre em contato pelo{" "}
               <a
                 href={buildWhatsAppUrl(organizacao.whatsapp)}

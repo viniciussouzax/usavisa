@@ -64,7 +64,7 @@ export function FileFieldRenderer({
         {field.required && <span className="ml-1 text-destructive">*</span>}
       </Label>
       {field.hint && (
-        <p className="text-xs text-muted-foreground">{field.hint}</p>
+        <p className="text-sm text-muted-foreground">{field.hint}</p>
       )}
 
       <input
@@ -111,7 +111,7 @@ export function FileFieldRenderer({
               </>
             )}
           </Button>
-          {error && <p className="text-xs text-destructive">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
       </div>
     </div>

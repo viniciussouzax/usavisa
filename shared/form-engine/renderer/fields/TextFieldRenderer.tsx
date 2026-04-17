@@ -74,7 +74,7 @@ export function TextFieldRenderer({ field, sectionId, atoms, arrayScope }: Props
         />
       )}
       {field.hint && (
-        <p className="text-xs text-muted-foreground">{field.hint}</p>
+        <p className="text-sm text-muted-foreground">{field.hint}</p>
       )}
       {(field.allowNA || field.allowUnknown) && (
         <NAToggle

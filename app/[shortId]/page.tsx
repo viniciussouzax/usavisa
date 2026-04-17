@@ -83,7 +83,7 @@ export default async function OrgLandingPage({
                     {link.label}
                   </span>
                   {link.descricao && (
-                    <span className="truncate text-xs text-muted-foreground">
+                    <span className="truncate text-sm text-muted-foreground">
                       {link.descricao}
                     </span>
                   )}
@@ -115,7 +115,7 @@ export default async function OrgLandingPage({
         )}
       </section>
 
-      <footer className="mt-auto text-center text-xs text-muted-foreground">
+      <footer className="mt-auto text-center text-sm text-muted-foreground">
         {organizacao.footerText ?? `© ${new Date().getFullYear()} ${organizacao.nome}`}
       </footer>
     </main>

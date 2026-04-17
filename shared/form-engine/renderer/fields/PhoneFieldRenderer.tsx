@@ -92,7 +92,7 @@ export function PhoneFieldRenderer({ field, sectionId, atoms, arrayScope }: Prop
         />
       </div>
       {field.hint && (
-        <p className="text-xs text-muted-foreground">{field.hint}</p>
+        <p className="text-sm text-muted-foreground">{field.hint}</p>
       )}
       {(field.allowNA || field.allowUnknown) && (
         <NAToggle

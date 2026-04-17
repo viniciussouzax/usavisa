@@ -112,7 +112,7 @@ export function PagesMode({ schema, atoms, uploadContext }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
             Seção {currentIdx + 1} de {visibleSections.length}
           </span>

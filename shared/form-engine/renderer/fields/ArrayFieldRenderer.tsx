@@ -74,7 +74,7 @@ export function ArrayFieldRenderer({ field, sectionId, atoms, uploadContext }: P
         {field.required && <span className="ml-1 text-destructive">*</span>}
       </Label>
       {field.hint && (
-        <p className="text-xs text-muted-foreground">{field.hint}</p>
+        <p className="text-sm text-muted-foreground">{field.hint}</p>
       )}
 
       {rows.length === 0 && (
@@ -89,7 +89,7 @@ export function ArrayFieldRenderer({ field, sectionId, atoms, uploadContext }: P
           className="rounded-md border border-border bg-background p-3"
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-sm font-medium text-muted-foreground">
               Entrada {idx + 1}
             </span>
             <Button

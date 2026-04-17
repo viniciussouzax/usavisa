@@ -136,14 +136,14 @@ export function DateRangeFieldRenderer({
         {field.required && <span className="ml-1 text-destructive">*</span>}
       </Label>
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs text-muted-foreground">De</span>
+        <span className="text-sm text-muted-foreground">De</span>
         <DatePicker
           value={value.from}
           disabled={disabled}
           idBase={`${b.key}-from`}
           onChange={(d) => b.setValue({ ...value, from: d })}
         />
-        <span className="text-xs text-muted-foreground">até</span>
+        <span className="text-sm text-muted-foreground">até</span>
         <DatePicker
           value={value.to}
           disabled={disabled}
@@ -152,7 +152,7 @@ export function DateRangeFieldRenderer({
         />
       </div>
       {field.hint && (
-        <p className="text-xs text-muted-foreground">{field.hint}</p>
+        <p className="text-sm text-muted-foreground">{field.hint}</p>
       )}
       {(field.allowNA || field.allowUnknown) && (
         <NAToggle
