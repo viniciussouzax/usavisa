@@ -331,9 +331,10 @@ export function SolicitanteListClient({
           <div className="flex flex-wrap items-center gap-2">
             <Select
               value={etapaFilter}
-              onValueChange={(v) =>
-                setEtapaFilter(v as Etapa | typeof ALL_ETAPAS)
-              }
+              onValueChange={(v) => {
+                setEtapaFilter(v as Etapa | typeof ALL_ETAPAS);
+                setStatusFilter(null);
+              }}
             >
               <SelectTrigger className="h-9 w-[220px]">
                 <SelectValue />
@@ -348,24 +349,31 @@ export function SolicitanteListClient({
               </SelectContent>
             </Select>
 
-            <ToggleGroup
-              value={statusFilter ? [statusFilter] : []}
-              onValueChange={(v) =>
-                setStatusFilter(((v[0] as Status) ?? null) as Status | null)
-              }
-              size="sm"
-              spacing={2}
-            >
-              {STATUSES.map((s) => (
-                <ToggleGroupItem
-                  key={s}
-                  value={s}
-                  className="border-0 text-muted-foreground hover:bg-accent hover:text-foreground aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:hover:bg-primary/90"
+            {(() => {
+              const visibleStatuses = etapaFilter === ALL_ETAPAS
+                ? (["Pendente", "Executando", "Concluido", "Erro", "Falha"] as const)
+                : statusesForEtapa(etapaFilter as Etapa);
+              return visibleStatuses.length > 0 ? (
+                <ToggleGroup
+                  value={statusFilter ? [statusFilter] : []}
+                  onValueChange={(v) =>
+                    setStatusFilter(((v[0] as Status) ?? null) as Status | null)
+                  }
+                  size="sm"
+                  spacing={2}
                 >
-                  {s}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+                  {visibleStatuses.map((s) => (
+                    <ToggleGroupItem
+                      key={s}
+                      value={s}
+                      className="border-0 text-muted-foreground hover:bg-accent hover:text-foreground aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:hover:bg-primary/90"
+                    >
+                      {s}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              ) : null;
+            })()}
           </div>
 
           <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
