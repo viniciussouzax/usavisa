@@ -7,6 +7,7 @@ import {
   Briefcase,
   Database,
   Users,
+  Settings2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -50,10 +51,11 @@ export type NavSection = {
 
 export const primaryNav: NavSection = {
   items: [
-    { title: "Solicitações", href: "/:orgSelf/solicitacoes", icon: Inbox },
-    { title: "Execuções", href: "/:orgSelf/execucoes", icon: Play },
+    { title: "Solicitacoes", href: "/:orgSelf/solicitacoes", icon: Inbox },
+    { title: "Execucoes", href: "/:orgSelf/execucoes", icon: Play },
     { title: "Faturamento", href: "/:orgSelf/faturamento", icon: Receipt },
-    { title: "Organização", href: "/:orgSelf/organizacao", icon: Building2 },
+    { title: "Organizacao", href: "/:orgSelf/organizacao", icon: Building2 },
+    { title: "Automacao", href: "/:orgSelf/configuracoes/automacao", icon: Settings2 },
   ],
 };
 
