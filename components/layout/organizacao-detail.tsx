@@ -283,21 +283,14 @@ export function OrganizacaoDetailClient({
                 className="cursor-pointer"
                 onClick={() => setWlEditing("cores")}
               >
-                <TableCell className="w-44">Cores</TableCell>
+                <TableCell className="w-44">Cor primária</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5">
                     <span
                       className="h-5 w-5 rounded border border-border"
-                      style={{ background: organizacao.color1 }}
-                    />
-                    <span
-                      className="h-5 w-5 rounded border border-border"
-                      style={{ background: organizacao.color2 }}
-                    />
-                    <span
-                      className="h-5 w-5 rounded border border-border"
                       style={{ background: organizacao.color3 }}
                     />
+                    <span className="text-xs text-muted-foreground">{organizacao.color3}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -1052,9 +1045,7 @@ function CoresDrawer({
   onClose: () => void;
 }) {
   const router = useRouter();
-  const [c1, setC1] = useState(organizacao.color1);
-  const [c2, setC2] = useState(organizacao.color2);
-  const [c3, setC3] = useState(organizacao.color3);
+  const [color, setColor] = useState(organizacao.color3);
   const [pending, startTransition] = useTransition();
 
   function submit(e: React.FormEvent) {
@@ -1062,15 +1053,13 @@ function CoresDrawer({
     startTransition(async () => {
       const res = await updateOrganizacaoAction({
         uid: organizacao.uid,
-        color1: c1,
-        color2: c2,
-        color3: c3,
+        color3: color,
       });
       if (res.error) {
         toast.error(res.error);
         return;
       }
-      toast.success("Cores atualizadas");
+      toast.success("Cor atualizada");
       router.refresh();
       onClose();
     });
@@ -1079,16 +1068,14 @@ function CoresDrawer({
   return (
     <SheetContent side="right">
       <SheetHeader>
-        <SheetTitle>Cores</SheetTitle>
+        <SheetTitle>Cor primária</SheetTitle>
         <SheetDescription>
-          Paleta da marca aplicada nas páginas públicas.
+          A cor principal da sua marca, aplicada nos botões e destaques das páginas públicas do solicitante.
         </SheetDescription>
       </SheetHeader>
 
       <form className="flex flex-col gap-4 px-4" onSubmit={submit}>
-        <ColorField id="cor-1" label="Cor 1" value={c1} onChange={setC1} />
-        <ColorField id="cor-2" label="Cor 2" value={c2} onChange={setC2} />
-        <ColorField id="cor-3" label="Cor 3" value={c3} onChange={setC3} />
+        <ColorField id="cor-primaria" label="Cor primária" value={color} onChange={setColor} />
 
         <SheetFooter>
           <Button type="button" variant="outline" onClick={onClose}>
