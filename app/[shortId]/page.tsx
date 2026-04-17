@@ -4,6 +4,8 @@ import { ArrowUpRight, LifeBuoy, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrganizacaoLogo } from "@/components/layout/organizacao-logo";
 import { getOrganizacaoByShortId } from "@/shared/models/organizacao";
+import { ForceLightTheme } from "./[token]/components/force-light-theme";
+import { OrgThemeInjector } from "./[token]/components/org-theme-injector";
 import { listActivePublicLinksByOrg } from "@/shared/models/org-public-link";
 import { buildWhatsAppUrl } from "@/app/data";
 
@@ -21,6 +23,9 @@ export default async function OrgLandingPage({
   const supportUrl = buildWhatsAppUrl(organizacao.whatsapp);
 
   return (
+    <>
+    <ForceLightTheme />
+    {organizacao.color3 && <OrgThemeInjector color={organizacao.color3} />}
     <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-8 px-6 py-12">
       <section className="flex flex-col items-center gap-4 text-center">
         <OrganizacaoLogo organizacao={organizacao} size="lg" />
@@ -114,5 +119,6 @@ export default async function OrgLandingPage({
         {organizacao.footerText ?? `© ${new Date().getFullYear()} ${organizacao.nome}`}
       </footer>
     </main>
+    </>
   );
 }
