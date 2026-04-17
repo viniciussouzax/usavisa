@@ -19,21 +19,14 @@ type Props = {
     "shortId" | "nome" | "logoLight" | "logoDark"
   >;
   size?: Size;
+  maxWidth?: number;
   className?: string;
 };
 
-/**
- * Marca visual da organização. Usa logos diferentes conforme tema (light/dark)
- * quando disponíveis — se só uma variante existir, reutiliza em ambos os
- * temas. Se nenhuma estiver configurada, renderiza o shortId como badge.
- *
- * Convenção:
- *   logoDark  → logo "escura" (usada em fundo claro / tema light)
- *   logoLight → logo "clara"  (usada em fundo escuro / tema dark)
- */
 export function OrganizacaoLogo({
   organizacao,
   size = "md",
+  maxWidth,
   className,
 }: Props) {
   const cfg = sizeConfig[size];
@@ -56,14 +49,16 @@ export function OrganizacaoLogo({
   }
 
   const sameForBothThemes = lightBgSrc === darkBgSrc;
+  const style = maxWidth ? { maxWidth } : undefined;
 
   return (
     <>
       <Image
         src={lightBgSrc}
         alt={organizacao.nome}
-        width={cfg.img}
+        width={maxWidth ?? cfg.img}
         height={cfg.img}
+        style={style}
         className={cn(
           "rounded-xl object-contain",
           sameForBothThemes ? "block" : "block dark:hidden",
@@ -74,8 +69,9 @@ export function OrganizacaoLogo({
         <Image
           src={darkBgSrc}
           alt={organizacao.nome}
-          width={cfg.img}
+          width={maxWidth ?? cfg.img}
           height={cfg.img}
+          style={style}
           className={cn(
             "hidden rounded-xl object-contain dark:block",
             className,
@@ -83,5 +79,25 @@ export function OrganizacaoLogo({
         />
       )}
     </>
+  );
+}
+
+export function OrganizacaoInitial({
+  organizacao,
+  className,
+}: {
+  organizacao: Pick<Organizacao, "nome">;
+  className?: string;
+}) {
+  return (
+    <div
+      aria-label={organizacao.nome}
+      className={cn(
+        "flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-xs font-semibold text-primary-foreground",
+        className,
+      )}
+    >
+      {organizacao.nome.charAt(0).toUpperCase()}
+    </div>
   );
 }

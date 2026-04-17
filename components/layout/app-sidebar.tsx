@@ -20,6 +20,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   primaryNav,
@@ -30,17 +31,19 @@ import {
   type NavResolveContext,
   type NavSection,
 } from "./nav-config";
-import { OrganizacaoLogo } from "./organizacao-logo";
+import { OrganizacaoLogo, OrganizacaoInitial } from "./organizacao-logo";
 import { ThemeToggle } from "./theme-toggle";
 import type { Organizacao } from "@/app/data";
 
 type AppSidebarProps = {
   userRole?: string | null;
-  currentOrg?: Pick<Organizacao, "shortId" | "nome" | "logoLight" | "logoDark"> | null;
+  currentOrg?: Pick<Organizacao, "shortId" | "nome" | "logoLight" | "logoDark" | "logoMaxWidth"> | null;
 };
 
 export function AppSidebar({ userRole, currentOrg }: AppSidebarProps) {
   const pathname = usePathname();
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
   const canSeeMaster = isMaster(userRole);
   const ctx: NavResolveContext = {
     currentOrgShortId: currentOrg?.shortId ?? null,
@@ -52,10 +55,14 @@ export function AppSidebar({ userRole, currentOrg }: AppSidebarProps) {
       <SidebarHeader>
         <Link href={homeHref} className="flex items-center gap-2 px-2 py-1.5">
           {currentOrg ? (
-            <OrganizacaoLogo organizacao={currentOrg} size="sm" />
+            collapsed ? (
+              <OrganizacaoInitial organizacao={currentOrg} />
+            ) : (
+              <OrganizacaoLogo organizacao={currentOrg} size="sm" maxWidth={currentOrg.logoMaxWidth ?? 120} />
+            )
           ) : (
             <div className="flex h-8 items-center justify-center rounded-md bg-sidebar-primary px-3 text-xs font-semibold text-sidebar-primary-foreground">
-              Master
+              {collapsed ? "M" : "Master"}
             </div>
           )}
         </Link>

@@ -54,6 +54,7 @@ export type Organizacao = {
   color1: string;
   color2: string;
   color3: string;
+  logoMaxWidth: number;
   fontTitle: string;
   fontBody: string;
   ativa: boolean;

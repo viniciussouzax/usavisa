@@ -1099,6 +1099,7 @@ function MarcaDrawer({
 }) {
   const router = useRouter();
   const [logoUrl, setLogoUrl] = useState(organizacao.logoDark ?? organizacao.logoLight ?? "");
+  const [maxWidth, setMaxWidth] = useState(organizacao.logoMaxWidth ?? 120);
   const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -1155,9 +1156,48 @@ function MarcaDrawer({
             <img
               src={logoUrl}
               alt="Logo atual"
-              className="max-h-20 max-w-full object-contain"
+              style={{ maxWidth }}
+              className="max-h-20 object-contain"
             />
-            <p className="text-xs text-muted-foreground">Logo atual</p>
+            <p className="text-xs text-muted-foreground">Logo atual ({maxWidth}px)</p>
+          </div>
+        )}
+
+        {logoUrl && (
+          <div className="grid gap-2">
+            <Label htmlFor="logo-width">Largura do logo ({maxWidth}px)</Label>
+            <input
+              id="logo-width"
+              type="range"
+              min={40}
+              max={240}
+              step={4}
+              value={maxWidth}
+              onChange={(e) => setMaxWidth(Number(e.target.value))}
+              className="w-full accent-primary"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>40px</span>
+              <span>240px</span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={pending || maxWidth === (organizacao.logoMaxWidth ?? 120)}
+              onClick={() => {
+                startTransition(async () => {
+                  const res = await updateOrganizacaoAction({
+                    uid: organizacao.uid,
+                    logoMaxWidth: maxWidth,
+                  });
+                  if (res.error) { toast.error(res.error); return; }
+                  toast.success("Largura atualizada");
+                  router.refresh();
+                });
+              }}
+            >
+              Salvar largura
+            </Button>
           </div>
         )}
 

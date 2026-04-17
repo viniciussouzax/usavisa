@@ -25,6 +25,7 @@ function rowToOrganizacao(row: typeof organizacao.$inferSelect): Organizacao {
     fontBody: row.fontBody,
     ativa: row.ativa,
     plano: row.plano as Plano,
+    logoMaxWidth: row.logoMaxWidth,
     tagline: row.tagline,
     descricao: row.descricao,
     footerText: row.footerText,

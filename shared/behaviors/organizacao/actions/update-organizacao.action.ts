@@ -28,6 +28,7 @@ const schema = z.object({
   color3: z.string().optional(),
   fontTitle: z.string().optional(),
   fontBody: z.string().optional(),
+  logoMaxWidth: z.number().min(40).max(240).optional(),
   ativa: z.boolean().optional(),
   plano: z.enum(["free", "premium"]).optional(),
 });

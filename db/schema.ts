@@ -100,6 +100,7 @@ export const organizacao = sqliteTable(
     color1: text("color_1").notNull().default("#09090b"),
     color2: text("color_2").notNull().default("#71717a"),
     color3: text("color_3").notNull().default("#3b82f6"),
+    logoMaxWidth: integer("logo_max_width").notNull().default(120),
     fontTitle: text("font_title").notNull().default("Inter"),
     fontBody: text("font_body").notNull().default("Inter"),
 
