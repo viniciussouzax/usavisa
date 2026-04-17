@@ -60,7 +60,7 @@ export function OrganizacaoLogo({
         height={cfg.img}
         style={style}
         className={cn(
-          "rounded-xl object-contain",
+          "object-contain",
           sameForBothThemes ? "block" : "block dark:hidden",
           className,
         )}
@@ -73,7 +73,7 @@ export function OrganizacaoLogo({
           height={cfg.img}
           style={style}
           className={cn(
-            "hidden rounded-xl object-contain dark:block",
+            "hidden object-contain dark:block",
             className,
           )}
         />
